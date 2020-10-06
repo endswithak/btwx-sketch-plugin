@@ -1,0 +1,24 @@
+{
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "Copy artboards to clipboard",
+      "identifier": "btwix.my-command-identifier",
+      "script": "./index.js",
+      "handlers": {
+        "run": "onRun",
+        "actions": {
+          "Shutdown": "onShutdown"
+        }
+      }
+    }
+  ],
+  "menu": {
+    "title": "btwix",
+    "items": [
+      "btwix.my-command-identifier"
+    ]
+  }
+}

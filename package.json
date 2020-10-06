@@ -1,0 +1,52 @@
+{
+  "name": "btwix",
+  "version": "0.1.0",
+  "engines": {
+    "sketch": ">=3.0"
+  },
+  "skpm": {
+    "name": "btwix",
+    "manifest": "src/manifest.json",
+    "main": "btwix.sketchplugin",
+    "assets": [
+      "assets/**/*"
+    ],
+    "sketch-assets-file": "sketch-assets/icons.sketch"
+  },
+  "scripts": {
+    "build": "npm run typescript:once && npm run sass:once && skpm-build",
+    "watch": "skpm-build --watch & npm run typescript & npm run sass",
+    "start": "skpm-build --watch",
+    "postinstall": "npm run build && skpm-link",
+    "typescript": "tsc --watch",
+    "typescript:once": "tsc",
+    "typescript:clean": "rm -rf ./.ts-compiled",
+    "sass:once": "sass --no-source-map styles/index.sass:resources/ui/style.css",
+    "sass": "sass --watch --no-source-map styles/index.sass:resources/ui/style.css"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/plugin-transform-runtime": "^7.11.5",
+    "@babel/preset-env": "^7.11.5",
+    "@babel/preset-typescript": "^7.10.4",
+    "@skpm/builder": "^0.7.4",
+    "@skpm/extract-loader": "^2.0.2",
+    "@types/tinycolor2": "^1.4.2",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
+    "babel-loader": "^8.1.0",
+    "css-loader": "^3.2.0",
+    "eslint": "^7.10.0",
+    "eslint-plugin-import": "^2.22.1",
+    "html-loader": "^0.5.5",
+    "ts-loader": "^8.0.4",
+    "typescript": "^4.0.3"
+  },
+  "resources": [
+    "resources/**/*.js"
+  ],
+  "dependencies": {
+    "sketch-module-web-view": "^3.1.4",
+    "tinycolor2": "^1.4.2"
+  }
+}

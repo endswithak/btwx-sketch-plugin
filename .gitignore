@@ -1,0 +1,23 @@
+# build artefacts
+btwix.sketchplugin
+
+resources/convert
+resources/store
+resources/ui/index.js
+resources/ui/style.css
+
+# npm
+node_modules
+.npm
+npm-debug.log
+
+# mac
+.DS_Store
+
+# WebStorm
+.idea
+
+# sketch
+# sketch-assets
+assets
+sketch-assets

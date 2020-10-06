@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		"target": "es2015",
+    "module": "es2015",
+    "jsx": "react",
+    "allowJs": true,
+    "strict": true,
+    "outDir": "./",
+    "rootDir": "./ts",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
+	},
+	"include": [
+    "./ts/**/*",
+  ],
+  "exclude": [
+    "./ts/types/**/*",
+    "./assets",
+    "./measure.sketchplugin",
+    "./node_modules",
+    "./sketch_assets",
+    "./.babelrc",
+    "./.gitignore",
+    "./package-lock.json",
+    "./package.json",
+    "./tsconfig.json",
+    "./webpack.skpm.config.js"
+  ]
+}
