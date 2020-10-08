@@ -831,6 +831,7 @@ declare namespace srm {
     sketchObject: any;
     duplicate(): any;
     remove(): any;
+    toJSON(): any;
   }
 
   // Layers / Layer / Transform
@@ -930,6 +931,12 @@ declare namespace srm {
     text: string;
     lineSpacing: LineSpacing;
     fixedWidth: boolean;
+    fragments: {
+      range: any,
+      text: string;
+      baselineOffset: number;
+      rect: Rectangle;
+    }[];
   }
 
   // Layers / Text / LineSpacing

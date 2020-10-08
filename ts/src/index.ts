@@ -46,7 +46,8 @@ export default (context: any) => {
       // set loading text based on theme
       loadingWebContents.executeJavaScript(
         `setLoadingColor('${theme}')`
-      ).then(() => {
+      )
+      .then(() => {
         // show loading window after text is styled
         loadingWindow.show();
         // get store when index loads
@@ -75,8 +76,8 @@ export default (context: any) => {
         //
         .then(() => {
           loadingWindow.close();
-          ui.alert('Layers Copied to Clipboard', 'Layers ready to be pasted in btwix.');
-        })
+          ui.message('Copied! Ready to be pasted in btwix');
+        });
       });
     });
     // make loading window closable

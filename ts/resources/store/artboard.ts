@@ -1,39 +1,39 @@
-interface CheckIfMaskOptions {
-  layer: srm.RelevantLayer | null;
-  sketch: srm.Sketch;
-}
+// interface CheckIfMaskOptions {
+//   layer: srm.RelevantLayer | null;
+//   sketch: srm.Sketch;
+// }
 
-const checkIfMask = ({ layer, sketch }: CheckIfMaskOptions): Promise<srm.RelevantLayer | null> => {
-  return new Promise((resolve, reject) => {
-    if (layer && layer.sketchObject.hasClippingMask()) {
-      const maskIndex = layer.index;
-      const maskParent = layer.parent;
-      const duplicate = layer.duplicate();
-      duplicate.sketchObject.setHasClippingMask(false);
-      // create new group to mimic mask behavior
-      const maskGroup = new sketch.Group({
-        name: 'btwix.mask',
-        frame: layer.frame,
-        layers: [duplicate]
-      });
-      // splice in mask group, splice out old mask
-      maskParent.layers.splice(maskIndex, 1, maskGroup);
-      // loop through mask parent layers,
-      // any layer with an index higher than the mask will be masked
-      // push masked layers to maskGroup
-      maskGroup.parent.layers.forEach((maskedLayer: srm.SketchLayer, index: number) => {
-        if (index > maskIndex) {
-          maskedLayer.frame.x = maskedLayer.frame.x - maskGroup.frame.x;
-          maskedLayer.frame.y = maskedLayer.frame.y - maskGroup.frame.y;
-          maskGroup.layers.push(maskedLayer);
-        }
-      });
-      resolve(maskGroup);
-    } else {
-      resolve(layer);
-    }
-  });
-};
+// const checkIfMask = ({ layer, sketch }: CheckIfMaskOptions): Promise<srm.RelevantLayer | null> => {
+//   return new Promise((resolve, reject) => {
+//     if (layer && layer.sketchObject.hasClippingMask()) {
+//       const maskIndex = layer.index;
+//       const maskParent = layer.parent;
+//       const duplicate = layer.duplicate();
+//       duplicate.sketchObject.setHasClippingMask(false);
+//       // create new group to mimic mask behavior
+//       const maskGroup = new sketch.Group({
+//         name: 'btwix.mask',
+//         frame: layer.frame,
+//         layers: [duplicate]
+//       });
+//       // splice in mask group, splice out old mask
+//       maskParent.layers.splice(maskIndex, 1, maskGroup);
+//       // loop through mask parent layers,
+//       // any layer with an index higher than the mask will be masked
+//       // push masked layers to maskGroup
+//       maskGroup.parent.layers.forEach((maskedLayer: srm.SketchLayer, index: number) => {
+//         if (index > maskIndex) {
+//           maskedLayer.frame.x = maskedLayer.frame.x - maskGroup.frame.x;
+//           maskedLayer.frame.y = maskedLayer.frame.y - maskGroup.frame.y;
+//           maskGroup.layers.push(maskedLayer);
+//         }
+//       });
+//       resolve(maskGroup);
+//     } else {
+//       resolve(layer);
+//     }
+//   });
+// };
 
 // interface CheckIfShapePathOptions {
 //   layer: srm.RelevantLayer | null;
@@ -161,21 +161,21 @@ const checkIfText = ({ layer }: CheckIfTextOptions): Promise<srm.RelevantLayer |
   });
 };
 
-interface RoundFrameDimensionsOptions {
-  layer: srm.RelevantLayer | null;
-}
+// interface RoundFrameDimensionsOptions {
+//   layer: srm.RelevantLayer | null;
+// }
 
-const roundFrameDimensions = ({ layer }: RoundFrameDimensionsOptions): Promise<srm.RelevantLayer | null> => {
-  return new Promise((resolve, reject) => {
-    if (layer) {
-      layer.frame.x = Math.round(layer.frame.x);
-      layer.frame.y = Math.round(layer.frame.y);
-      layer.frame.width = Math.round(layer.frame.width);
-      layer.frame.height = Math.round(layer.frame.height);
-    }
-    resolve(layer);
-  });
-};
+// const roundFrameDimensions = ({ layer }: RoundFrameDimensionsOptions): Promise<srm.RelevantLayer | null> => {
+//   return new Promise((resolve, reject) => {
+//     if (layer) {
+//       layer.frame.x = parseInt(layer.frame.x.toFixed(2));
+//       layer.frame.y = parseInt(layer.frame.y.toFixed(2));
+//       layer.frame.width = parseInt(layer.frame.width.toFixed(2));
+//       layer.frame.height = parseInt(layer.frame.height.toFixed(2));
+//     }
+//     resolve(layer);
+//   });
+// };
 
 interface ProcessLayerOptions {
   layer: srm.ArtboardLayer;
@@ -198,12 +198,12 @@ const processLayer = ({ layer, sketch, page }: ProcessLayerOptions): Promise<srm
         layer: layerS2 as srm.RelevantLayer | null
       });
     })
-    .then((layerS3) => {
-      return checkIfMask({
-        layer: layerS3 as srm.RelevantLayer | null,
-        sketch: sketch
-      });
-    })
+    // .then((layerS3) => {
+    //   return checkIfMask({
+    //     layer: layerS3 as srm.RelevantLayer | null,
+    //     sketch: sketch
+    //   });
+    // })
     // .then((layerS4) => {
     //   return checkIfShapePath({
     //     layer: layerS4 as srm.RelevantLayer | null,
@@ -222,11 +222,11 @@ const processLayer = ({ layer, sketch, page }: ProcessLayerOptions): Promise<srm
         layer: layerS6 as srm.RelevantLayer | null
       });
     })
-    .then((layerS7) => {
-      return roundFrameDimensions({
-        layer: layerS7 as srm.RelevantLayer | null
-      });
-    })
+    // .then((layerS7) => {
+    //   return roundFrameDimensions({
+    //     layer: layerS7 as srm.RelevantLayer | null
+    //   });
+    // })
     .then((layerS8) => {
       if (layerS8 && layerS8.type === 'Group') {
         processLayers({

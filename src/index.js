@@ -41,7 +41,8 @@ export default (context) => {
         // display loading modal when loaded
         loadingWebContents.on('did-finish-load', () => {
             // set loading text based on theme
-            loadingWebContents.executeJavaScript(`setLoadingColor('${theme}')`).then(() => {
+            loadingWebContents.executeJavaScript(`setLoadingColor('${theme}')`)
+                .then(() => {
                 // show loading window after text is styled
                 loadingWindow.show();
                 // get store when index loads
@@ -66,7 +67,7 @@ export default (context) => {
                     //
                     .then(() => {
                     loadingWindow.close();
-                    ui.alert('Layers Copied to Clipboard', 'Layers ready to be pasted in btwix.');
+                    ui.message('Copied! Ready to be pasted in btwix');
                 });
             });
         });

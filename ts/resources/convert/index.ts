@@ -9,29 +9,27 @@ import { getShapeGroupChildren } from './shapeGroupUtils';
 
 interface ConvertLayers {
   sketchLayers: (srm.RelevantLayer | srm.Artboard)[];
-  parentId: string;
-  parentName: string;
-  parentFrame: {
-    width: number;
-    height: number;
-    x: number;
-    y: number;
-  };
-  masked: boolean;
-  mask: boolean;
   images: {
     [id: string]: btwix.DocumentImage;
   };
   sketch: srm.Sketch;
+  parentFrame: any;
 }
 
-export const convertLayers = ({ sketchLayers, parentId, parentFrame, images, sketch, masked, mask, parentName }: ConvertLayers): Promise<btwix.Layer[]> => {
+export const convertLayers = ({ sketchLayers, images, sketch, parentFrame }: ConvertLayers): Promise<btwix.Layer[]> => {
   return new Promise((resolve, reject) => {
     let layers: btwix.Layer[] = [];
     let xOffset = 0;
+    let masked = false;
     const promises: Promise<btwix.Layer[]>[] = [];
     sketchLayers.forEach((sketchLayer, index) => {
-      promises.push(convertLayer({sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName, xOffset}));
+      if (sketchLayer.sketchObject.hasClippingMask() && sketchLayer.parent.type === 'Group') {
+        masked = true;
+      }
+      // if (sketchLayer.sketchObject.shouldBreakMaskChain()) {
+      //   masked = false;
+      // }
+      promises.push(convertLayer({sketchLayer, images, sketch, xOffset, masked, parentFrame}));
       if (sketchLayer.type === 'Artboard') {
         xOffset += (sketchLayer.frame.width + 48);
       }
@@ -47,39 +45,27 @@ export const convertLayers = ({ sketchLayers, parentId, parentFrame, images, ske
 
 interface ConvertLayer {
   sketchLayer: srm.RelevantLayer | srm.Artboard;
-  parentId: string;
-  parentName: string;
-  parentFrame: {
-    width: number;
-    height: number;
-    x: number;
-    y: number;
-  };
-  masked: boolean;
-  mask: boolean;
   images: {
     [id: string]: btwix.DocumentImage;
   };
   sketch: srm.Sketch;
   xOffset: number;
+  masked: boolean;
+  parentFrame: any;
 }
 
-export const convertArtboard = ({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName, xOffset }: ConvertLayer): Promise<btwix.Layer[]> => {
+export const convertArtboard = ({ sketchLayer, images, sketch, xOffset, masked, parentFrame }: ConvertLayer): Promise<btwix.Layer[]> => {
   return new Promise((resolve, reject) => {
     convertLayers({
       sketchLayers: (sketchLayer as srm.Artboard).layers as srm.RelevantLayer[],
-      parentId: sketchLayer.id,
-      parentName: sketchLayer.name,
       parentFrame: {
         width: sketchLayer.frame.width,
         height: sketchLayer.frame.height,
-        x: (parentFrame.x - (parentFrame.width / 2)) + xOffset,
-        y: parentFrame.y - (parentFrame.height / 2),
+        x: xOffset,
+        y: 0,
       },
       images,
-      sketch,
-      masked,
-      mask
+      sketch
     }).then((layers) => {
       resolve(
         [
@@ -87,10 +73,10 @@ export const convertArtboard = ({ sketchLayer, parentId, parentFrame, images, sk
             id: sketchLayer.id,
             type: 'Artboard',
             name: sketchLayer.name,
-            parent: parentId,
+            parent: 'page',
             frame: {
-              x: (parentFrame.x - (parentFrame.width / 2)) + xOffset,
-              y: parentFrame.y - (parentFrame.height / 2),
+              x: xOffset,
+              y: 0,
               width: sketchLayer.frame.width,
               height: sketchLayer.frame.height,
               innerWidth: sketchLayer.frame.width,
@@ -104,7 +90,7 @@ export const convertArtboard = ({ sketchLayer, parentId, parentFrame, images, sk
   });
 }
 
-export const convertShapeGroup = ({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName }: ConvertLayer): Promise<btwix.Shape[]> => {
+export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, parentFrame }: ConvertLayer): Promise<btwix.Shape[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.Shape);
     resolve(
@@ -113,9 +99,9 @@ export const convertShapeGroup = ({ sketchLayer, parentId, parentFrame, images, 
           id: sketchLayer.id,
           type: 'ShapeGroup',
           name: sketchLayer.name,
-          parent: parentId,
-          masked: parentName === 'btwix.mask',
-          mask: parentName === 'btwix.mask' && sketchLayer.index === 0,
+          parent: sketchLayer.parent.id,
+          masked: masked,
+          mask: sketchLayer.sketchObject.hasClippingMask() && sketchLayer.index === 0 && sketchLayer.parent.type === 'Group',
           frame: {
             x: position.x + (parentFrame.x - (parentFrame.width / 2)),
             y: position.y + (parentFrame.y - (parentFrame.height / 2)),
@@ -147,7 +133,7 @@ export const convertShapeGroup = ({ sketchLayer, parentId, parentFrame, images, 
   });
 }
 
-export const convertShapePath = ({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName }: ConvertLayer): Promise<btwix.Shape[]> => {
+export const convertShapePath = ({ sketchLayer, images, sketch, masked, parentFrame }: ConvertLayer): Promise<btwix.Shape[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.ShapePath);
     resolve(
@@ -157,9 +143,9 @@ export const convertShapePath = ({ sketchLayer, parentId, parentFrame, images, s
           type: 'Shape',
           shapeType: 'Custom',
           name: sketchLayer.name,
-          parent: parentId,
-          masked: parentName === 'btwix.mask',
-          mask: parentName === 'btwix.mask' && sketchLayer.index === 0,
+          parent: sketchLayer.parent.id,
+          masked: masked,
+          mask: sketchLayer.sketchObject.hasClippingMask() && sketchLayer.index === 0 && sketchLayer.parent.type === 'Group',
           frame: {
             x: position.x + (parentFrame.x - (parentFrame.width / 2)),
             y: position.y + (parentFrame.y - (parentFrame.height / 2)),
@@ -189,13 +175,13 @@ export const convertShapePath = ({ sketchLayer, parentId, parentFrame, images, s
   });
 }
 
-export const convertGroup = ({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName }: ConvertLayer): Promise<btwix.Layer[]> => {
+export const convertGroup = ({ sketchLayer, images, sketch, masked, parentFrame }: ConvertLayer): Promise<btwix.Layer[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.Group);
+    const hasLayers = (sketchLayer as srm.Group).layers[0];
+    const clipped = hasLayers && (sketchLayer as srm.Group).layers[0].sketchObject.hasClippingMask();
     convertLayers({
       sketchLayers: (sketchLayer as srm.Group).layers as srm.RelevantLayer[],
-      parentId: sketchLayer.id,
-      parentName: sketchLayer.name,
       parentFrame: {
         width: sketchLayer.frame.width,
         height: sketchLayer.frame.height,
@@ -203,19 +189,17 @@ export const convertGroup = ({ sketchLayer, parentId, parentFrame, images, sketc
         y: position.y + (parentFrame.y - (parentFrame.height / 2))
       },
       images,
-      sketch,
-      masked,
-      mask
+      sketch
     }).then((layers) => {
       resolve(
         [
           {
             type: 'Group',
-            name: sketchLayer.name,
-            parent: parentId,
             id: sketchLayer.id,
-            clipped: sketchLayer.name === 'btwix.mask',
-            masked: parentName === 'btwix.mask',
+            name: sketchLayer.name,
+            parent: sketchLayer.parent.id,
+            masked: masked,
+            clipped: clipped,
             frame: {
               x: position.x + (parentFrame.x - (parentFrame.width / 2)),
               y: position.y + (parentFrame.y - (parentFrame.height / 2)),
@@ -232,99 +216,27 @@ export const convertGroup = ({ sketchLayer, parentId, parentFrame, images, sketc
   });
 }
 
-// export const convertText = ({ sketchLayer, parentId, parentFrame, images, sketch }: ConvertLayer): Promise<any> => {
-//   return new Promise((resolve, reject) => {
-//     const position = convertPosition(sketchLayer);
-//     const textContainer = new paperMain.Group({insert: false});
-//     const fontAttrs = textUtils.getFontAttributes({
-//       textStyle: sketchLayer.style.textStyle
-//     });
-//     const override = textUtils.getOverrideString({
-//       overrides: overrides,
-//       symbolPath: symbolPath
-//     });
-//     const textContent = textUtils.getTextTransformString({
-//       str: override ? override.value as string : sketchLayer.attributedString.string,
-//       textTransform: fontAttrs.textTransform
-//     });
-//     const textAttrs = {
-//       point: textUtils.getTextPoint({
-//         justfication: fontAttrs.alignment,
-//         width: sketchLayer.frame.width
-//       }),
-//       content: textContent,
-//       parent: textContainer,
-//       fillColor: fontAttrs.color,
-//       fontWeight: `${fontAttrs.fontStyle} ${fontAttrs.fontWeight}`,
-//       fontStretch: fontAttrs.fontStretch,
-//       fontFamily: fontAttrs.fontFamily,
-//       justification: fontAttrs.alignment,
-//       fontSize: fontAttrs.fontSize,
-//       leading: fontAttrs.lineHeight,
-//       letterSpacing: fontAttrs.letterSpacing
-//     }
-//     textUtils.drawText({
-//       layer: sketchLayer,
-//       textOptions: textAttrs,
-//       layerOptions: {
-//         parent: textContainer
-//       }
-//     });
-//     const paperLayer = textContainer.getItem({ class: 'PointText' }) || textContainer.getItem({ class: 'AreaText' }) as paper.TextItem;
-//     resolve(
-//       [
-//         {
-//           type: 'Text',
-//           id: sketchLayer.do_objectID,
-//           name: sketchLayer.name,
-//           parent: parentId,
-//           text: textContent,
-//           frame: {
-//             x: position.x + (parentFrame.x - (parentFrame.width / 2)),
-//             y: position.y + (parentFrame.y - (parentFrame.height / 2)),
-//             width: paperLayer.bounds.width,
-//             height: paperLayer.bounds.height,
-//             innerWidth: paperLayer.bounds.width,
-//             innerHeight: paperLayer.bounds.height
-//           },
-//           style: {
-//             fill: convertFill(sketchLayer),
-//             stroke: convertStroke(sketchLayer),
-//             strokeOptions: convertStrokeOptions(sketchLayer),
-//             shadow: convertShadow(sketchLayer),
-//             blendMode: convertBlendMode(sketchLayer),
-//             opacity: sketchLayer.style.contextSettings.opacity
-//           },
-//           textStyle: {
-//             fontSize: textAttrs.fontSize,
-//             lineHeight: textAttrs.leading,
-//             fontWeight: textAttrs.fontWeight,
-//             fontFamily: textAttrs.fontFamily,
-//             justfication: textAttrs.justification
-//           },
-//           transform: {
-//             rotation: sketchLayer.rotation * -1,
-//             verticalFlip: sketchLayer.isFlippedVertical,
-//             horizontalFlip: sketchLayer.isFlippedHorizontal
-//           },
-//           paperLayer
-//         }
-//       ]
-//     );
-//   });
-// }
-
-export const convertImage = ({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName }: ConvertLayer): Promise<btwix.Image[]> => {
+export const convertText = ({ sketchLayer, images, sketch, parentFrame }: ConvertLayer): Promise<any> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.Image);
+    const sketchRatio = (sketchLayer as srm.Text).style.fontWeight / 12;
+    const domScale = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+    const fontWeight = domScale[Math.floor(sketchRatio * domScale.length)];
     resolve(
       [
         {
-          type: 'Image',
+          type: 'Text',
           id: sketchLayer.id,
           name: sketchLayer.name,
-          parent: parentId,
-          masked: parentName === 'btwix.mask',
+          parent: sketchLayer.parent.id,
+          text: (sketchLayer as srm.Text).fragments.reduce((result, current, index) => {
+            const prevFrage = (sketchLayer as srm.Text).fragments[index === 0 ? 0 : index - 1];
+            result = result + current.text;
+            if (index < (sketchLayer as srm.Text).fragments.length - 1 && !prevFrage.text.includes(`\n`)) {
+              result = result + `\n`;
+            }
+            return result;
+          }, ''),
           frame: {
             x: position.x + (parentFrame.x - (parentFrame.width / 2)),
             y: position.y + (parentFrame.y - (parentFrame.height / 2)),
@@ -333,65 +245,109 @@ export const convertImage = ({ sketchLayer, parentId, parentFrame, images, sketc
             innerWidth: sketchLayer.frame.width,
             innerHeight: sketchLayer.frame.height
           },
-          transform: {
-            rotation: (sketchLayer as srm.Image).transform.rotation * -1,
-            verticalFlip: (sketchLayer as srm.Image).transform.flippedVertically,
-            horizontalFlip: (sketchLayer as srm.Image).transform.flippedHorizontally
-          },
           style: {
-            shadow: convertShadow(sketchLayer as srm.Image),
-            blendMode: (sketchLayer as srm.Image).style.blendingMode.toLowerCase() as btwix.BlendMode,
-            opacity: (sketchLayer as srm.Image).style.opacity
+            fill: convertFill(sketchLayer as srm.Text),
+            stroke: convertStroke(sketchLayer as srm.Text),
+            strokeOptions: convertStrokeOptions(sketchLayer as srm.Text),
+            shadow: convertShadow(sketchLayer as srm.Text),
+            blendMode: (sketchLayer as srm.Text).style.blendingMode.toLowerCase() as btwix.BlendMode,
+            opacity: (sketchLayer as srm.Text).style.opacity
           },
-          imageId: (sketchLayer as srm.Image).image.id
+          textStyle: {
+            fontSize: (sketchLayer as srm.Text).style.fontSize,
+            leading: (sketchLayer as srm.Text).style.lineHeight,
+            fontWeight: fontWeight,
+            fontFamily: (sketchLayer as srm.Text).style.fontFamily,
+            justification: (sketchLayer as srm.Text).style.alignment
+          },
+          transform: {
+            rotation: (sketchLayer as srm.Text).transform.rotation * -1,
+            verticalFlip: (sketchLayer as srm.Text).transform.flippedVertically,
+            horizontalFlip: (sketchLayer as srm.Text).transform.flippedHorizontally
+          }
         }
       ]
     );
   });
 }
 
-export const convertLayer = ({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName, xOffset }: ConvertLayer): Promise<btwix.Layer[]> => {
+export const convertImage = ({ sketchLayer, images, sketch, masked, parentFrame }: ConvertLayer): Promise<btwix.Image[]> => {
   return new Promise((resolve, reject) => {
-    switch(sketchLayer.type) {
+    const position = convertPosition(sketchLayer as srm.Image);
+    resolve(
+      [
+        {
+          type: 'Image',
+          id: sketchLayer.id,
+          imageId: (sketchLayer as srm.Image).image.id,
+          name: sketchLayer.name,
+          parent: sketchLayer.parent.id,
+          masked: masked,
+          frame: {
+            x: position.x + (parentFrame.x - (parentFrame.width / 2)),
+            y: position.y + (parentFrame.y - (parentFrame.height / 2)),
+            width: sketchLayer.frame.width,
+            height: sketchLayer.frame.height,
+            innerWidth: sketchLayer.frame.width,
+            innerHeight: sketchLayer.frame.height
+          },
+          style: {
+            shadow: convertShadow(sketchLayer as srm.Image),
+            blendMode: (sketchLayer as srm.Image).style.blendingMode.toLowerCase() as btwix.BlendMode,
+            opacity: (sketchLayer as srm.Image).style.opacity
+          },
+          transform: {
+            rotation: (sketchLayer as srm.Image).transform.rotation * -1,
+            verticalFlip: (sketchLayer as srm.Image).transform.flippedVertically,
+            horizontalFlip: (sketchLayer as srm.Image).transform.flippedHorizontally
+          }
+        } as btwix.Image
+      ]
+    );
+  });
+}
+
+export const convertLayer = (props: ConvertLayer): Promise<btwix.Layer[]> => {
+  return new Promise((resolve, reject) => {
+    switch(props.sketchLayer.type) {
       case 'Artboard': {
-        convertArtboard({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName, xOffset }).then((layers) => {
+        convertArtboard(props).then((layers) => {
           resolve(layers);
         });
         break;
       }
       case 'Shape': {
-        convertShapeGroup({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName, xOffset }).then((layers) => {
+        convertShapeGroup(props).then((layers) => {
           resolve(layers);
         });
         break;
       }
       case 'ShapePath': {
-        convertShapePath({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName, xOffset }).then((layers) => {
+        convertShapePath(props).then((layers) => {
           resolve(layers);
         });
         break;
       }
       case 'Group': {
-        convertGroup({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName, xOffset }).then((layers) => {
+        convertGroup(props).then((layers) => {
           resolve(layers);
         });
         break;
       }
-      // case 'Text': {
-      //   convertText({ sketchLayer, parentId, parentFrame, images, sketch }).then((layers) => {
-      //     resolve(layers);
-      //   });
-      // }
-      //   break;
+      case 'Text': {
+        convertText(props).then((layers) => {
+          resolve(layers);
+        });
+      }
+        break;
       case 'Image': {
-        convertImage({ sketchLayer, parentId, parentFrame, images, sketch, masked, mask, parentName, xOffset }).then((layers) => {
+        convertImage(props).then((layers) => {
           resolve(layers);
         });
         break;
       }
       default:
         resolve([]);
-        // throw Error(`Unknown layer type ${sketchLayer.type}`);
     }
   });
 }
@@ -409,16 +365,12 @@ const convert = (data: Convert): Promise<btwix.ClipboardLayers> => {
     const { artboards, images, sketch } = data;
     convertLayers({
       sketchLayers: artboards,
-      parentId: 'page',
       parentFrame: {
         width: 0,
         height: 0,
         x: 0,
         y: 0
       },
-      parentName: 'page',
-      masked: false,
-      mask: false,
       images,
       sketch
     }).then((btwixLayers) => {

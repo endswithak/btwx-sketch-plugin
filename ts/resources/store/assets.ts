@@ -130,28 +130,12 @@ interface GenerateImageAssetOptions {
 
 export const generateImageAsset = ({ layer, sketch, id, prefix, scale }: GenerateImageAssetOptions): Promise<btwix.DocumentImage> => {
   return new Promise((resolve, reject) => {
-    // sketch.export(layer, {
-    //   formats: 'png',
-    //   scales: '2',
-    //   ['use-id-for-name']: true,
-    //   ['save-for-web']: true
-    // });
-    // create buffer from layer
     const buffer = sketch.export(layer, {
       formats: 'png',
       scales: scale ? scale : '2',
       output: false,
       ['save-for-web']: true
     });
-    // // create image layer from buffer
-    // const bufferImg: srm.Image = new sketch.Image({
-    //   image: buffer
-    // });
-    // // get base64 from image layer nsdata
-    // const base64 = bufferImg.image.nsdata.base64EncodedStringWithOptions(0);
-    // // create base64 string
-    // const base64String = `data:image/png;base64,${base64}`;
-    // return final image
     resolve({
       id: prefix ? `${prefix}${id}` : id,
       buffer: buffer,
