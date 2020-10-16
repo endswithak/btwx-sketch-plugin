@@ -74,6 +74,7 @@ export const convertArtboard = ({ sketchLayer, images, sketch, xOffset, masked, 
             type: 'Artboard',
             name: sketchLayer.name,
             parent: 'page',
+            showChildren: false,
             frame: {
               x: xOffset,
               y: 0,
@@ -200,6 +201,7 @@ export const convertGroup = ({ sketchLayer, images, sketch, masked, parentFrame 
             parent: sketchLayer.parent.id,
             masked: masked,
             clipped: clipped,
+            showChildren: false,
             frame: {
               x: position.x + (parentFrame.x - (parentFrame.width / 2)),
               y: position.y + (parentFrame.y - (parentFrame.height / 2)),
