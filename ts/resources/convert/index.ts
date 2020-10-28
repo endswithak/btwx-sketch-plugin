@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { convertPosition } from './generalUtils';
+import { convertPosition, convertMask, convertIgnoreUnderlyingMask } from './generalUtils';
 import { convertFill } from './fillUtils';
 import { convertStroke, convertStrokeOptions } from './strokeUtils';
 // import { getImage, getImageId } from './imageUtils';
@@ -21,15 +21,14 @@ export const convertLayers = ({ sketchLayers, images, sketch, parentFrame }: Con
     let layers: btwix.Layer[] = [];
     let xOffset = 0;
     let masked = false;
+    let underlyingMask: any = null;
     const promises: Promise<btwix.Layer[]>[] = [];
     sketchLayers.forEach((sketchLayer, index) => {
-      if (sketchLayer.sketchObject.hasClippingMask() && sketchLayer.parent.type === 'Group') {
+      if (convertMask(sketchLayer as any)) {
+        underlyingMask = sketchLayer.id;
         masked = true;
       }
-      // if (sketchLayer.sketchObject.shouldBreakMaskChain()) {
-      //   masked = false;
-      // }
-      promises.push(convertLayer({sketchLayer, images, sketch, xOffset, masked, parentFrame}));
+      promises.push(convertLayer({sketchLayer, images, sketch, xOffset, masked, underlyingMask, parentFrame}));
       if (sketchLayer.type === 'Artboard') {
         xOffset += (sketchLayer.frame.width + 48);
       }
@@ -51,11 +50,13 @@ interface ConvertLayer {
   sketch: srm.Sketch;
   xOffset: number;
   masked: boolean;
+  underlyingMask: string;
   parentFrame: any;
 }
 
-export const convertArtboard = ({ sketchLayer, images, sketch, xOffset, masked, parentFrame }: ConvertLayer): Promise<btwix.Layer[]> => {
+export const convertArtboard = ({ sketchLayer, images, sketch, xOffset, masked, underlyingMask, parentFrame }: ConvertLayer): Promise<btwix.Layer[]> => {
   return new Promise((resolve, reject) => {
+    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as any);
     convertLayers({
       sketchLayers: (sketchLayer as srm.Artboard).layers as srm.RelevantLayer[],
       parentFrame: {
@@ -75,6 +76,9 @@ export const convertArtboard = ({ sketchLayer, images, sketch, xOffset, masked, 
             name: sketchLayer.name,
             parent: 'page',
             showChildren: false,
+            ignoreUnderlyingMask: ignoreUnderlyingMask,
+            masked: masked && !ignoreUnderlyingMask,
+            underlyingMask: underlyingMask,
             frame: {
               x: xOffset,
               y: 0,
@@ -91,9 +95,11 @@ export const convertArtboard = ({ sketchLayer, images, sketch, xOffset, masked, 
   });
 }
 
-export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, parentFrame }: ConvertLayer): Promise<btwix.Shape[]> => {
+export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, underlyingMask, parentFrame }: ConvertLayer): Promise<btwix.Shape[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.Shape);
+    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Shape);
+    const isMask = convertMask(sketchLayer as srm.Shape);
     resolve(
       [
         {
@@ -101,8 +107,10 @@ export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, parentF
           type: 'ShapeGroup',
           name: sketchLayer.name,
           parent: sketchLayer.parent.id,
-          masked: masked,
-          mask: sketchLayer.sketchObject.hasClippingMask() && sketchLayer.index === 0 && sketchLayer.parent.type === 'Group',
+          ignoreUnderlyingMask: ignoreUnderlyingMask,
+          underlyingMask: underlyingMask,
+          masked: masked && !ignoreUnderlyingMask && underlyingMask !== sketchLayer.id,
+          mask: isMask,
           frame: {
             x: position.x + (parentFrame.x - (parentFrame.width / 2)),
             y: position.y + (parentFrame.y - (parentFrame.height / 2)),
@@ -134,9 +142,11 @@ export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, parentF
   });
 }
 
-export const convertShapePath = ({ sketchLayer, images, sketch, masked, parentFrame }: ConvertLayer): Promise<btwix.Shape[]> => {
+export const convertShapePath = ({ sketchLayer, images, sketch, masked, underlyingMask, parentFrame }: ConvertLayer): Promise<btwix.Shape[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.ShapePath);
+    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.ShapePath);
+    const isMask = convertMask(sketchLayer as srm.ShapePath);
     resolve(
       [
         {
@@ -145,8 +155,10 @@ export const convertShapePath = ({ sketchLayer, images, sketch, masked, parentFr
           shapeType: 'Custom',
           name: sketchLayer.name,
           parent: sketchLayer.parent.id,
-          masked: masked,
-          mask: sketchLayer.sketchObject.hasClippingMask() && sketchLayer.index === 0 && sketchLayer.parent.type === 'Group',
+          ignoreUnderlyingMask: ignoreUnderlyingMask,
+          underlyingMask: underlyingMask,
+          masked: masked && !ignoreUnderlyingMask && underlyingMask !== sketchLayer.id,
+          mask: isMask,
           frame: {
             x: position.x + (parentFrame.x - (parentFrame.width / 2)),
             y: position.y + (parentFrame.y - (parentFrame.height / 2)),
@@ -176,11 +188,10 @@ export const convertShapePath = ({ sketchLayer, images, sketch, masked, parentFr
   });
 }
 
-export const convertGroup = ({ sketchLayer, images, sketch, masked, parentFrame }: ConvertLayer): Promise<btwix.Layer[]> => {
+export const convertGroup = ({ sketchLayer, images, sketch, masked, underlyingMask, parentFrame }: ConvertLayer): Promise<btwix.Layer[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.Group);
-    const hasLayers = (sketchLayer as srm.Group).layers[0];
-    const clipped = hasLayers && (sketchLayer as srm.Group).layers[0].sketchObject.hasClippingMask();
+    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Group);
     convertLayers({
       sketchLayers: (sketchLayer as srm.Group).layers as srm.RelevantLayer[],
       parentFrame: {
@@ -199,8 +210,9 @@ export const convertGroup = ({ sketchLayer, images, sketch, masked, parentFrame 
             id: sketchLayer.id,
             name: sketchLayer.name,
             parent: sketchLayer.parent.id,
-            masked: masked,
-            clipped: clipped,
+            ignoreUnderlyingMask: ignoreUnderlyingMask,
+            underlyingMask: underlyingMask,
+            masked: masked && !ignoreUnderlyingMask,
             showChildren: false,
             frame: {
               x: position.x + (parentFrame.x - (parentFrame.width / 2)),
@@ -210,7 +222,7 @@ export const convertGroup = ({ sketchLayer, images, sketch, masked, parentFrame 
               innerWidth: sketchLayer.frame.width,
               innerHeight: sketchLayer.frame.height
             }
-          } as btwix.Group,
+          } as any,
           ...layers
         ] as btwix.Layer[]
       );
@@ -218,9 +230,10 @@ export const convertGroup = ({ sketchLayer, images, sketch, masked, parentFrame 
   });
 }
 
-export const convertText = ({ sketchLayer, images, sketch, parentFrame }: ConvertLayer): Promise<any> => {
+export const convertText = ({ sketchLayer, images, sketch, masked, underlyingMask, parentFrame }: ConvertLayer): Promise<any> => {
   return new Promise((resolve, reject) => {
-    const position = convertPosition(sketchLayer as srm.Image);
+    const position = convertPosition(sketchLayer as srm.Text);
+    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Text);
     const sketchRatio = (sketchLayer as srm.Text).style.fontWeight / 12;
     const domScale = [100, 200, 300, 400, 500, 600, 700, 800, 900];
     const fontWeight = domScale[Math.floor(sketchRatio * domScale.length)];
@@ -231,6 +244,9 @@ export const convertText = ({ sketchLayer, images, sketch, parentFrame }: Conver
           id: sketchLayer.id,
           name: sketchLayer.name,
           parent: sketchLayer.parent.id,
+          ignoreUnderlyingMask: ignoreUnderlyingMask,
+          underlyingMask: underlyingMask,
+          masked: masked && !ignoreUnderlyingMask,
           text: (sketchLayer as srm.Text).fragments.reduce((result, current, index) => {
             const prevFrage = (sketchLayer as srm.Text).fragments[index === 0 ? 0 : index - 1];
             result = result + current.text;
@@ -273,9 +289,10 @@ export const convertText = ({ sketchLayer, images, sketch, parentFrame }: Conver
   });
 }
 
-export const convertImage = ({ sketchLayer, images, sketch, masked, parentFrame }: ConvertLayer): Promise<btwix.Image[]> => {
+export const convertImage = ({ sketchLayer, images, sketch, masked, underlyingMask, parentFrame }: ConvertLayer): Promise<btwix.Image[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.Image);
+    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Image);
     resolve(
       [
         {
@@ -284,7 +301,9 @@ export const convertImage = ({ sketchLayer, images, sketch, masked, parentFrame 
           imageId: (sketchLayer as srm.Image).image.id,
           name: sketchLayer.name,
           parent: sketchLayer.parent.id,
-          masked: masked,
+          ignoreUnderlyingMask: ignoreUnderlyingMask,
+          masked: masked && !ignoreUnderlyingMask,
+          underlyingMask: underlyingMask,
           frame: {
             x: position.x + (parentFrame.x - (parentFrame.width / 2)),
             y: position.y + (parentFrame.y - (parentFrame.height / 2)),
@@ -303,7 +322,7 @@ export const convertImage = ({ sketchLayer, images, sketch, masked, parentFrame 
             verticalFlip: (sketchLayer as srm.Image).transform.flippedVertically,
             horizontalFlip: (sketchLayer as srm.Image).transform.flippedHorizontally
           }
-        } as btwix.Image
+        } as any
       ]
     );
   });

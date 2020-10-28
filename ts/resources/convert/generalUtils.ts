@@ -29,6 +29,30 @@ export const convertPosition = (layer: srm.RelevantLayer): srm.Point => ({
   y: layer.frame.y + (layer.frame.height / 2)
 });
 
+export const convertMask = (layer: srm.RelevantLayer): boolean => {
+  const isMask = layer.sketchObject.hasClippingMask();
+  switch(isMask) {
+    case 0:
+      return false;
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+};
+
+export const convertIgnoreUnderlyingMask = (layer: srm.RelevantLayer): boolean => {
+  const isMask = layer.sketchObject.shouldBreakMaskChain();
+  switch(isMask) {
+    case 0:
+      return false;
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+};
+
 export const convertColor = (sketchColor: string): any => {
   const color = tinyColor(sketchColor);
   const hsl = color.toHsl();
