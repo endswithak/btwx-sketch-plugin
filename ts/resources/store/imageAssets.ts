@@ -6,7 +6,7 @@ interface ProcessLayerImageOptions {
   sketch: srm.Sketch;
 }
 
-const processLayerImage = ({ page, layer, sketch }: ProcessLayerImageOptions): Promise<srm.base64Image> => {
+const processLayerImage = ({ page, layer, sketch }: ProcessLayerImageOptions): Promise<btwix.DocumentImage> => {
   return new Promise((resolve, reject) => {
     // create image layer from image date
     const baseImage = new sketch.Image({

@@ -89,6 +89,41 @@
 //   });
 // };
 
+interface CheckIfShapeOptions {
+  layer: srm.RelevantLayer | null;
+  sketch: srm.Sketch;
+  page: srm.Page;
+}
+
+const checkIfShape = ({ layer, sketch, page }: CheckIfShapeOptions): Promise<srm.RelevantLayer | null> => {
+  return new Promise((resolve, reject) => {
+    if (layer && layer.type === 'Shape') {
+      if (layer.sketchObject.canFlatten()) {
+        layer.sketchObject.flatten();
+      }
+      // const duplicate = layer.duplicate();
+      // duplicate.parent = page;
+      // duplicate.style.blur = {type: 'Gaussian', enabled: false};
+      // duplicate.style.opacity = 1;
+      // duplicate.style.shadows = [];
+      // duplicate.style.innerShadows = [];
+      // duplicate.style.borders = [];
+      // duplicate.style.fills = [];
+      // const buffer = sketch.export(duplicate, {
+      //   formats: 'svg',
+      //   output: false
+      // });
+      // const flatShapeGroup = sketch.createLayerFromData(buffer, 'svg');
+      // const flatShape = flatShapeGroup.layers[0];
+      // flatShape.frame = layer.frame;
+      // flatShape.style = layer.style;
+      // layer.parent.layers.splice(layer.index, 1, flatShape);
+      // duplicate.remove();
+    }
+    resolve(layer);
+  });
+};
+
 interface CheckIfRelevantOptions {
   layer: srm.ArtboardLayer;
 }
@@ -151,9 +186,12 @@ interface CheckIfTextOptions {
 
 const checkIfText = ({ layer }: CheckIfTextOptions): Promise<srm.RelevantLayer | null> => {
   return new Promise((resolve, reject) => {
-    if (layer && layer.type === 'Text' && !layer.style.lineHeight) {
-      // @ts-ignore
-      layer.style.lineHeight = layer.style.getDefaultLineHeight();
+    if (layer && layer.type === 'Text') {
+      if (!layer.style.lineHeight) {
+        // @ts-ignore
+        layer.style.lineHeight = layer.style.getDefaultLineHeight();
+      }
+      layer.sketchObject.adjustFrameToFit();
       resolve(layer as srm.RelevantLayer);
     } else {
       resolve(layer as srm.RelevantLayer);
@@ -210,13 +248,13 @@ const processLayer = ({ layer, sketch, page }: ProcessLayerOptions): Promise<srm
     //     sketch: sketch
     //   });
     // })
-    // .then((layerS5) => {
-    //   return checkIfShape({
-    //     layer: layerS5 as srm.RelevantLayer | null,
-    //     sketch: sketch,
-    //     page: page
-    //   });
-    // })
+    .then((layerS5) => {
+      return checkIfShape({
+        layer: layerS5 as srm.RelevantLayer | null,
+        sketch: sketch,
+        page: page
+      });
+    })
     .then((layerS6) => {
       return checkIfText({
         layer: layerS6 as srm.RelevantLayer | null

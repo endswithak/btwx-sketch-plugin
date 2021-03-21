@@ -12,33 +12,42 @@ export const convertFillType = (sketchFillType: srm.FillType): any => {
   }
 };
 
-export const convertFill = (layer: srm.RelevantLayer): any => {
-  const fill = layer.style.fills.find(fill => fill.fillType === 'Color' || fill.fillType === 'Gradient');
-  if (!fill) {
-    if (layer.type === 'Text') {
-      return {
-        enabled: true,
-        color: convertColor(layer.style.textColor),
-        fillType: DEFAULT_FILL_FILL_TYPE,
-        gradient: DEFAULT_GRADIENT_STYLE
+export const convertFill = (layer: srm.RelevantLayer | srm.Artboard): any => {
+  if (layer.type === 'Artboard') {
+    return {
+      enabled: true,
+      color: convertColor((layer as srm.Artboard).background.color),
+      fillType: DEFAULT_FILL_FILL_TYPE,
+      gradient: DEFAULT_GRADIENT_STYLE
+    }
+  } else {
+    const fill = (layer as srm.RelevantLayer).style.fills.find(fill => fill.fillType === 'Color' || fill.fillType === 'Gradient');
+    if (!fill) {
+      if (layer.type === 'Text') {
+        return {
+          enabled: true,
+          color: convertColor((layer as srm.RelevantLayer).style.textColor),
+          fillType: DEFAULT_FILL_FILL_TYPE,
+          gradient: DEFAULT_GRADIENT_STYLE
+        }
+      } else {
+        return {
+          ...DEFAULT_FILL_STYLE,
+          enabled: false
+        };
       }
     } else {
       return {
-        ...DEFAULT_FILL_STYLE,
-        enabled: false
-      };
-    }
-  } else {
-    return {
-      enabled: fill.enabled,
-      color: convertColor(fill.color),
-      fillType: convertFillType(fill.fillType),
-      gradient: {
-        activeStopIndex: 0,
-        gradientType: convertGradientType(fill.gradient.gradientType),
-        origin: convertGradientOrigin(fill.gradient.from),
-        destination: convertGradientDestination(fill.gradient.to),
-        stops: convertGradientStops(fill.gradient.stops)
+        enabled: fill.enabled,
+        color: convertColor(fill.color),
+        fillType: convertFillType(fill.fillType),
+        gradient: {
+          activeStopIndex: 0,
+          gradientType: convertGradientType(fill.gradient.gradientType),
+          origin: convertGradientOrigin(fill.gradient.from),
+          destination: convertGradientDestination(fill.gradient.to),
+          stops: convertGradientStops(fill.gradient.stops)
+        }
       }
     }
   }

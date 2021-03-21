@@ -132,13 +132,14 @@ export const generateImageAsset = ({ layer, sketch, id, prefix, scale }: Generat
   return new Promise((resolve, reject) => {
     const buffer = sketch.export(layer, {
       formats: 'png',
-      scales: scale ? scale : '2',
+      // scales: '2',
       output: false,
       ['save-for-web']: true
     });
     resolve({
       id: prefix ? `${prefix}${id}` : id,
       buffer: buffer,
+      ext: 'png'
     });
   })
 };
@@ -151,7 +152,7 @@ interface CreateFillImageOptions {
   sketch: srm.Sketch;
 }
 
-const createFillImage = ({ page, layer, fill, fillIndex, sketch }: CreateFillImageOptions): Promise<srm.base64Image> => {
+const createFillImage = ({ page, layer, fill, fillIndex, sketch }: CreateFillImageOptions): Promise<btwix.DocumentImage> => {
   return new Promise((resolve, reject) => {
     let temp: srm.RelevantLayer;
     createLayerTemplate({
@@ -184,7 +185,7 @@ interface ProcessLayerFillOptions {
   sketch: srm.Sketch;
 }
 
-const processLayerFill = ({ page, layer, fill, fillIndex, sketch }: ProcessLayerFillOptions): Promise<srm.base64Image | null> => {
+const processLayerFill = ({ page, layer, fill, fillIndex, sketch }: ProcessLayerFillOptions): Promise<btwix.DocumentImage | null> => {
   return new Promise((resolve, reject) => {
     switch(fill.fillType) {
       case 'Pattern':
@@ -214,8 +215,8 @@ interface ProcessLayerFillsOptions {
   fills: srm.Fill[];
 }
 
-export const processLayerFills = ({ page, layer, sketch, fills }: ProcessLayerFillsOptions): Promise<(srm.base64Image | null)[]> => {
-  let promises: Promise<srm.base64Image | null>[] = [];
+export const processLayerFills = ({ page, layer, sketch, fills }: ProcessLayerFillsOptions): Promise<(btwix.DocumentImage | null)[]> => {
+  let promises: Promise<btwix.DocumentImage | null>[] = [];
   fills.forEach((fill: srm.Fill, fillIndex: number) => {
     if (fill.enabled) {
       promises.push(processLayerFill({

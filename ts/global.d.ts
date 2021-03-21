@@ -44,7 +44,7 @@ declare namespace btwix {
 
   type Jusftification = 'left' | 'center' | 'right';
 
-  type FontWeight = 'normal' | 'italic' | 'bold' | 'bold italic';
+  type FontWeight = number;
 
   type AppleiPhoneDevice = 'iPhone 8' | 'iPhone 8 Plus' | 'iPhone SE' | 'iPhone 11 Pro' | 'iPhone 11' | 'iPhone 11 Pro Max';
 
@@ -119,7 +119,6 @@ declare namespace btwix {
     h: number;
     s: number;
     l: number;
-    v: number;
     a: number;
   }
 
@@ -146,6 +145,11 @@ declare namespace btwix {
     categories: em.DeviceCategory[];
   }
 
+  interface BlurStyle {
+    enabled: boolean;
+    blur: number;
+  }
+
   interface Style {
     fill: Fill;
     stroke: Stroke;
@@ -153,6 +157,7 @@ declare namespace btwix {
     shadow: Shadow;
     opacity: number;
     blendMode: BlendMode;
+    blur: BlurStyle;
   }
 
   interface TextStyle {
@@ -161,6 +166,9 @@ declare namespace btwix {
     fontWeight: FontWeight;
     fontFamily: string;
     justification: Jusftification;
+    textTransform: 'none' | 'uppercase' | 'lowercase';
+    oblique: number;
+    letterSpacing: number;
   }
 
   type FillType = 'color' | 'gradient';
@@ -230,14 +238,43 @@ declare namespace btwix {
 
   interface ClipboardLayers {
     type: ClipboardType;
+    compiledIds: string[];
     main: string[];
+    topScopeChildren: string[];
+    topScopeArtboards: {
+      allIds: string[];
+      byId: {
+        [id: string]: Artboard;
+      };
+    };
     allIds: string[];
+    allArtboardIds: string[];
+    allShapeIds: string[];
+    allGroupIds: string[];
+    allTextIds: string[];
+    allImageIds: string[];
     byId: {
       [id: string]: Layer;
     };
     images: {
       [id: string]: DocumentImage;
     };
+    bounds: paper.Rectangle | number[];
+    events?: {
+      allIds: string[];
+      byId: {
+        [id: string]: TweenEvent;
+      };
+    };
+    shapeIcons: {
+      [id: string]: string;
+    };
+    tweens?: {
+      allIds: string[];
+      byId: {
+        [id: string]: Tween;
+      };
+    }
   }
 
   interface ClipboardStyle {
@@ -316,6 +353,7 @@ declare namespace btwix {
   interface DocumentImage {
     id: string;
     buffer: Buffer;
+    ext: string;
   }
 
   interface TweenEvent {

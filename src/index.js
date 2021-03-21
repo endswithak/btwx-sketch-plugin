@@ -8,6 +8,7 @@ import BrowserWindow from 'sketch-module-web-view';
 import { getWebview } from 'sketch-module-web-view/remote';
 import getStore from '../resources/store';
 import convert from '../resources/convert';
+import { APP_NAME } from '../resources/convert/constants';
 const loadingWindowIdentifier = 'srm.loadingWindow';
 export default (context) => {
     // get sketch document
@@ -67,7 +68,7 @@ export default (context) => {
                     //
                     .then(() => {
                     loadingWindow.close();
-                    ui.message('Copied! Ready to be pasted in btwix');
+                    ui.message(`Copied! Ready to be pasted in ${APP_NAME}`);
                 });
             });
         });
