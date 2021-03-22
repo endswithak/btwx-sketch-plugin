@@ -274,22 +274,30 @@ const processLayer = ({ layer, sketch, page }: ProcessLayerOptions): Promise<srm
     })
     .then((layerS8) => {
       if (layerS8 && layerS8.type === 'Group') {
-        const groupParent = (layerS8 as srm.Group).parent;
-        const groupName = (layerS8 as srm.Group).name;
-        (layerS8 as srm.Group).sketchObject.ungroup();
-        new sketch.Group({
-          name: groupName,
-          parent: groupParent,
-          layers: (layerS8 as srm.Group).layers
-        });
-        processLayers({
-          layers: (layerS8 as srm.Group).layers,
-          sketch: sketch,
-          page: page
-        })
-        .then(() => {
+        if ((layerS8 as srm.Group).layers.length === 0) {
+          (layerS8 as srm.Group).remove();
           resolve();
-        });
+        } else {
+          const groupParent = (layerS8 as srm.Group).parent;
+          const groupName = (layerS8 as srm.Group).name;
+          (layerS8 as srm.Group).sketchObject.ungroup();
+          const newGroup = new sketch.Group({
+            name: groupName,
+            parent: groupParent,
+            layers: (layerS8 as srm.Group).layers
+          });
+          processLayers({
+            layers: (layerS8 as srm.Group).layers,
+            sketch: sketch,
+            page: page
+          })
+          .then(() => {
+            if (newGroup.layers.length === 0) {
+              (newGroup as srm.Group).remove();
+            }
+            resolve();
+          });
+        }
       } else {
         resolve();
       }

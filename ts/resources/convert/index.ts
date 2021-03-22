@@ -134,68 +134,72 @@ export const convertArtboard = ({ sketchLayer, images, sketch, masked, underlyin
   });
 }
 
-// export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwix.Shape[]> => {
-//   return new Promise((resolve, reject) => {
-//     const position = convertPosition(sketchLayer as srm.Shape);
-//     const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Shape);
-//     const isMask = convertMask(sketchLayer as srm.Shape);
-//     resolve(
-//       [
-//         {
-//           id: sketchLayer.id,
-//           type: 'Shape',
-//           shapeType: 'Custom',
-//           name: sketchLayer.name,
-//           artboard: artboardItem.id,
-//           parent: sketchLayer.parent.id,
-//           scope: scope,
-//           ignoreUnderlyingMask: ignoreUnderlyingMask,
-//           underlyingMask: underlyingMask,
-//           masked: masked && !ignoreUnderlyingMask && underlyingMask !== sketchLayer.id,
-//           mask: isMask,
-//           selected: false,
-//           hover: false,
-//           events: [],
-//           tweens: {
-//             allIds: [],
-//             asOrigin: [],
-//             asDestination: [],
-//             byProp: TWEEN_PROPS_MAP
-//           },
-//           frame: {
-//             x: position.x - artboardItem.frame.x,
-//             y: position.y - artboardItem.frame.y,
-//             width: sketchLayer.frame.width,
-//             height: sketchLayer.frame.height,
-//             innerWidth: sketchLayer.frame.width,
-//             innerHeight: sketchLayer.frame.height
-//           },
-//           style: {
-//             fill: convertFill(sketchLayer as srm.Shape),
-//             stroke: convertStroke(sketchLayer as srm.Shape),
-//             strokeOptions: convertStrokeOptions(sketchLayer as srm.Shape),
-//             shadow: convertShadow(sketchLayer as srm.Shape),
-//             blendMode: (sketchLayer as srm.Shape).style.blendingMode.toLowerCase() as btwix.BlendMode,
-//             opacity: (sketchLayer as srm.Shape).style.opacity,
-//             blur: {
-//               enabled: (sketchLayer as srm.Shape).style.blur.enabled && (sketchLayer as srm.Shape).style.blur.blurType === 'Gaussian',
-//               blur: (sketchLayer as srm.Shape).style.blur.radius
-//             }
-//           },
-//           transform: {
-//             rotation: (sketchLayer as srm.Shape).transform.rotation,
-//             verticalFlip: (sketchLayer as srm.Shape).transform.flippedVertically,
-//             horizontalFlip: (sketchLayer as srm.Shape).transform.flippedHorizontally
-//           },
-//           sketchLayer: {
-//             ...sketchLayer.toJSON(),
-//             layers: getShapeGroupChildren(sketchLayer as srm.Shape)
-//           }
-//         } as any
-//       ]
-//     );
-//   });
-// }
+export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwix.Shape[]> => {
+  return new Promise((resolve, reject) => {
+    const position = convertPosition(sketchLayer as srm.Shape);
+    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Shape);
+    const isMask = convertMask(sketchLayer as srm.Shape);
+    const pathData = (sketchLayer as srm.Shape).layers.reduce((result, current) => {
+      const subPath = (current as srm.ShapePath).getSVGPath();
+      return `${result} ${subPath}`;
+    }, '');
+    resolve(
+      [
+        {
+          type: 'Shape',
+          id: sketchLayer.id,
+          name: sketchLayer.name,
+          artboard: artboardItem.id,
+          parent: sketchLayer.parent.id,
+          children: null,
+          scope: scope,
+          frame: {
+            x: position.x - (artboardItem.frame.width / 2),
+            y: position.y - (artboardItem.frame.height / 2),
+            width: sketchLayer.frame.width,
+            height: sketchLayer.frame.height,
+            innerWidth: sketchLayer.frame.width,
+            innerHeight: sketchLayer.frame.height
+          },
+          underlyingMask: underlyingMask,
+          ignoreUnderlyingMask: ignoreUnderlyingMask,
+          masked: masked && !ignoreUnderlyingMask && underlyingMask !== sketchLayer.id,
+          mask: isMask,
+          showChildren: false,
+          selected: false,
+          hover: false,
+          events: [],
+          tweens: {
+            allIds: [],
+            asOrigin: [],
+            asDestination: [],
+            byProp: TWEEN_PROPS_MAP
+          },
+          style: {
+            fill: convertFill(sketchLayer as srm.Shape),
+            stroke: convertStroke(sketchLayer as srm.Shape),
+            strokeOptions: convertStrokeOptions(sketchLayer as srm.Shape),
+            shadow: convertShadow(sketchLayer as srm.Shape),
+            blendMode: (sketchLayer as srm.Shape).style.blendingMode.toLowerCase() as btwix.BlendMode,
+            opacity: (sketchLayer as srm.Shape).style.opacity,
+            blur: {
+              enabled: (sketchLayer as srm.Shape).style.blur.enabled && (sketchLayer as srm.Shape).style.blur.blurType === 'Gaussian',
+              blur: (sketchLayer as srm.Shape).style.blur.radius
+            }
+          },
+          transform: {
+            rotation: (sketchLayer as srm.Shape).transform.rotation * -1,
+            verticalFlip: (sketchLayer as srm.Shape).transform.flippedVertically,
+            horizontalFlip: (sketchLayer as srm.Shape).transform.flippedHorizontally
+          },
+          shapeType: 'Custom',
+          pathData: pathData,
+          closed: (sketchLayer as srm.Shape).sketchObject.isClosed === 0 ? false : true
+        } as any
+      ]
+    );
+  });
+}
 
 export const convertShapePath = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwix.Shape[]> => {
   return new Promise((resolve, reject) => {
@@ -519,12 +523,12 @@ export const convertLayer = (props: ConvertLayer): Promise<btwix.Layer[]> => {
         });
         break;
       }
-      // case 'Shape': {
-      //   convertShapeGroup(props).then((layers) => {
-      //     resolve(layers);
-      //   });
-      //   break;
-      // }
+      case 'Shape': {
+        convertShapeGroup(props).then((layers) => {
+          resolve(layers);
+        });
+        break;
+      }
       case 'ShapePath': {
         convertShapePath(props).then((layers) => {
           resolve(layers);
