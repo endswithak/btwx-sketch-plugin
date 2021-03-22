@@ -81,7 +81,7 @@ export const convertArtboard = ({ sketchLayer, images, sketch, masked, underlyin
       underlyingMask: null,
       ignoreUnderlyingMask: null,
       masked: false,
-      showChildren: false,
+      showChildren: (sketchLayer as srm.Artboard).sketchObject.isExpanded(),
       selected: false,
       hover: false,
       events: [],
@@ -294,7 +294,7 @@ export const convertGroup = ({ sketchLayer, images, sketch, masked, underlyingMa
             underlyingMask: underlyingMask,
             ignoreUnderlyingMask: ignoreUnderlyingMask,
             masked: masked && !ignoreUnderlyingMask,
-            showChildren: false,
+            showChildren: (sketchLayer as srm.Group).sketchObject.isExpanded(),
             selected: false,
             hover: false,
             events: [],
@@ -416,7 +416,7 @@ export const convertText = ({ sketchLayer, images, sketch, masked, underlyingMas
             fontWeight: fontWeight,
             fontFamily: (sketchLayer as srm.Text).style.fontFamily,
             justification: (sketchLayer as srm.Text).style.alignment === 'justified' ? 'left' : (sketchLayer as srm.Text).style.alignment,
-            letterSpacing: (sketchLayer as srm.Text).style.kerning,
+            letterSpacing: (sketchLayer as srm.Text).style.kerning ? (sketchLayer as srm.Text).style.kerning : 0,
             textTransform: (sketchLayer as srm.Text).style.textTransform,
             oblique:(sketchLayer as srm.Text).style.fontStyle === 'italic' ? 14 : 0,
           },
@@ -591,7 +591,7 @@ const convert = (data: Convert): Promise<btwix.ClipboardLayers> => {
             break;
           case 'Shape':
             result.allShapeIds = [...result.allShapeIds, current.id];
-            result.shapeIcons = { ...result.shapeIcons, [current.id]: (current as btwix.Shape).pathData };
+            // result.shapeIcons = { ...result.shapeIcons, [current.id]: (current as btwix.Shape).pathData };
             break;
           case 'Text':
             result.allTextIds = [...result.allTextIds, current.id];
@@ -599,7 +599,7 @@ const convert = (data: Convert): Promise<btwix.ClipboardLayers> => {
         }
         return result;
       }, {
-        type: 'layers',
+        type: 'sketch-layers',
         main: [],
         compiledIds: [],
         events: { allIds: [], byId: {} },

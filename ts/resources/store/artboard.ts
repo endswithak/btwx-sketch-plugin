@@ -171,9 +171,15 @@ interface CheckIfSymbolOptions {
 const checkIfSymbol = ({ layer }: CheckIfSymbolOptions): Promise<srm.RelevantLayer | null> => {
   return new Promise((resolve, reject) => {
     if (layer && layer.type === 'SymbolInstance') {
-      resolve((<srm.SymbolInstance>layer).detach({
+      const detachedSymbol = (<srm.SymbolInstance>layer).detach({
         recursively: true
-      }));
+      });
+      if ((detachedSymbol as srm.Group).layers.length === 0) {
+        (detachedSymbol as srm.Group).remove();
+        resolve(null);
+      } else {
+        resolve(detachedSymbol);
+      }
     } else {
       resolve(layer as srm.RelevantLayer);
     }
@@ -191,7 +197,8 @@ const checkIfText = ({ layer }: CheckIfTextOptions): Promise<srm.RelevantLayer |
         // @ts-ignore
         layer.style.lineHeight = layer.style.getDefaultLineHeight();
       }
-      layer.sketchObject.adjustFrameToFit();
+      (layer as any).adjustToFit();
+      // layer.sketchObject.adjustFrameToFit();
       resolve(layer as srm.RelevantLayer);
     } else {
       resolve(layer as srm.RelevantLayer);
@@ -231,11 +238,6 @@ const processLayer = ({ layer, sketch, page }: ProcessLayerOptions): Promise<srm
         layer: layerS1 as srm.RelevantLayer | srm.SymbolInstance | null
       });
     })
-    .then((layerS2) => {
-      return checkIfSymbol({
-        layer: layerS2 as srm.RelevantLayer | null
-      });
-    })
     // .then((layerS3) => {
     //   return checkIfMask({
     //     layer: layerS3 as srm.RelevantLayer | null,
@@ -265,8 +267,21 @@ const processLayer = ({ layer, sketch, page }: ProcessLayerOptions): Promise<srm
     //     layer: layerS7 as srm.RelevantLayer | null
     //   });
     // })
+    .then((layerS2) => {
+      return checkIfSymbol({
+        layer: layerS2 as srm.RelevantLayer | null
+      });
+    })
     .then((layerS8) => {
       if (layerS8 && layerS8.type === 'Group') {
+        const groupParent = (layerS8 as srm.Group).parent;
+        const groupName = (layerS8 as srm.Group).name;
+        (layerS8 as srm.Group).sketchObject.ungroup();
+        new sketch.Group({
+          name: groupName,
+          parent: groupParent,
+          layers: (layerS8 as srm.Group).layers
+        });
         processLayers({
           layers: (layerS8 as srm.Group).layers,
           sketch: sketch,
