@@ -95,16 +95,10 @@ export const TWEEN_PROPS_MAP: { [id: string]: string[] } = {
   letterSpacing: [],
   lineHeight: [],
   fontWeight: [],
-  oblique: [],
-  justification: [],
   text: [],
-  fromX: [],
-  fromY: [],
-  toX: [],
-  toY: [],
-  pointX: [],
-  pointY: [],
-  blur: []
+  blur: [],
+  scaleX: [],
+  scaleY: []
 }
 
 export const CUSTOM_WIGGLE_TWEEN_STRENGTH_NUMBER = 20;

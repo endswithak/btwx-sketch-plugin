@@ -1,94 +1,3 @@
-// interface CheckIfMaskOptions {
-//   layer: srm.RelevantLayer | null;
-//   sketch: srm.Sketch;
-// }
-
-// const checkIfMask = ({ layer, sketch }: CheckIfMaskOptions): Promise<srm.RelevantLayer | null> => {
-//   return new Promise((resolve, reject) => {
-//     if (layer && layer.sketchObject.hasClippingMask()) {
-//       const maskIndex = layer.index;
-//       const maskParent = layer.parent;
-//       const duplicate = layer.duplicate();
-//       duplicate.sketchObject.setHasClippingMask(false);
-//       // create new group to mimic mask behavior
-//       const maskGroup = new sketch.Group({
-//         name: 'btwix.mask',
-//         frame: layer.frame,
-//         layers: [duplicate]
-//       });
-//       // splice in mask group, splice out old mask
-//       maskParent.layers.splice(maskIndex, 1, maskGroup);
-//       // loop through mask parent layers,
-//       // any layer with an index higher than the mask will be masked
-//       // push masked layers to maskGroup
-//       maskGroup.parent.layers.forEach((maskedLayer: srm.SketchLayer, index: number) => {
-//         if (index > maskIndex) {
-//           maskedLayer.frame.x = maskedLayer.frame.x - maskGroup.frame.x;
-//           maskedLayer.frame.y = maskedLayer.frame.y - maskGroup.frame.y;
-//           maskGroup.layers.push(maskedLayer);
-//         }
-//       });
-//       resolve(maskGroup);
-//     } else {
-//       resolve(layer);
-//     }
-//   });
-// };
-
-// interface CheckIfShapePathOptions {
-//   layer: srm.RelevantLayer | null;
-//   sketch: srm.Sketch;
-// }
-
-// const checkIfShapePath = ({ layer, sketch }: CheckIfShapePathOptions): Promise<srm.RelevantLayer | null> => {
-//   return new Promise((resolve, reject) => {
-//     if (layer && layer.type === 'ShapePath') {
-//       const duplicate = layer.duplicate();
-//       duplicate.transform.rotation = 0;
-//       const svgPath = (duplicate as srm.ShapePath).getSVGPath();
-//       const flatPath = sketch.ShapePath.fromSVGPath(svgPath);
-//       (layer as srm.ShapePath).points = flatPath.points;
-//       duplicate.remove();
-//     }
-//     resolve(layer);
-//   });
-// };
-
-// interface CheckIfShapeOptions {
-//   layer: srm.RelevantLayer | null;
-//   sketch: srm.Sketch;
-//   page: srm.Page;
-// }
-
-// const checkIfShape = ({ layer, sketch, page }: CheckIfShapeOptions): Promise<srm.RelevantLayer | null> => {
-//   return new Promise((resolve, reject) => {
-//     if (layer && layer.type === 'Shape') {
-//       const promises: Promise<any>[] = [];
-//       if (layer.sketchObject.canFlatten()) {
-//         layer.sketchObject.flatten();
-//       }
-//       (layer as srm.Shape).layers.forEach((child) => {
-//         switch(child.type) {
-//           case 'Shape':
-//             promises.push(checkIfShape({layer: child, sketch, page}));
-//           case 'ShapePath':
-//             promises.push(checkIfShapePath({layer: child, sketch}));
-//             break;
-//         }
-//       });
-//       if (promises.length > 0) {
-//         Promise.all(promises).then(() => {
-//           resolve(layer);
-//         });
-//       } else {
-//         resolve(layer);
-//       }
-//     } else {
-//       resolve(layer);
-//     }
-//   });
-// };
-
 interface CheckIfShapeOptions {
   layer: srm.RelevantLayer | null;
   sketch: srm.Sketch;
@@ -101,24 +10,6 @@ const checkIfShape = ({ layer, sketch, page }: CheckIfShapeOptions): Promise<srm
       if (layer.sketchObject.canFlatten()) {
         layer.sketchObject.flatten();
       }
-      // const duplicate = layer.duplicate();
-      // duplicate.parent = page;
-      // duplicate.style.blur = {type: 'Gaussian', enabled: false};
-      // duplicate.style.opacity = 1;
-      // duplicate.style.shadows = [];
-      // duplicate.style.innerShadows = [];
-      // duplicate.style.borders = [];
-      // duplicate.style.fills = [];
-      // const buffer = sketch.export(duplicate, {
-      //   formats: 'svg',
-      //   output: false
-      // });
-      // const flatShapeGroup = sketch.createLayerFromData(buffer, 'svg');
-      // const flatShape = flatShapeGroup.layers[0];
-      // flatShape.frame = layer.frame;
-      // flatShape.style = layer.style;
-      // layer.parent.layers.splice(layer.index, 1, flatShape);
-      // duplicate.remove();
     }
     resolve(layer);
   });
@@ -197,30 +88,13 @@ const checkIfText = ({ layer }: CheckIfTextOptions): Promise<srm.RelevantLayer |
         // @ts-ignore
         layer.style.lineHeight = layer.style.getDefaultLineHeight();
       }
-      (layer as any).adjustToFit();
-      // layer.sketchObject.adjustFrameToFit();
+      layer.style.paragraphSpacing = 0;
       resolve(layer as srm.RelevantLayer);
     } else {
       resolve(layer as srm.RelevantLayer);
     }
   });
 };
-
-// interface RoundFrameDimensionsOptions {
-//   layer: srm.RelevantLayer | null;
-// }
-
-// const roundFrameDimensions = ({ layer }: RoundFrameDimensionsOptions): Promise<srm.RelevantLayer | null> => {
-//   return new Promise((resolve, reject) => {
-//     if (layer) {
-//       layer.frame.x = parseInt(layer.frame.x.toFixed(2));
-//       layer.frame.y = parseInt(layer.frame.y.toFixed(2));
-//       layer.frame.width = parseInt(layer.frame.width.toFixed(2));
-//       layer.frame.height = parseInt(layer.frame.height.toFixed(2));
-//     }
-//     resolve(layer);
-//   });
-// };
 
 interface ProcessLayerOptions {
   layer: srm.ArtboardLayer;
@@ -238,18 +112,6 @@ const processLayer = ({ layer, sketch, page }: ProcessLayerOptions): Promise<srm
         layer: layerS1 as srm.RelevantLayer | srm.SymbolInstance | null
       });
     })
-    // .then((layerS3) => {
-    //   return checkIfMask({
-    //     layer: layerS3 as srm.RelevantLayer | null,
-    //     sketch: sketch
-    //   });
-    // })
-    // .then((layerS4) => {
-    //   return checkIfShapePath({
-    //     layer: layerS4 as srm.RelevantLayer | null,
-    //     sketch: sketch
-    //   });
-    // })
     .then((layerS5) => {
       return checkIfShape({
         layer: layerS5 as srm.RelevantLayer | null,
@@ -262,11 +124,6 @@ const processLayer = ({ layer, sketch, page }: ProcessLayerOptions): Promise<srm
         layer: layerS6 as srm.RelevantLayer | null
       });
     })
-    // .then((layerS7) => {
-    //   return roundFrameDimensions({
-    //     layer: layerS7 as srm.RelevantLayer | null
-    //   });
-    // })
     .then((layerS2) => {
       return checkIfSymbol({
         layer: layerS2 as srm.RelevantLayer | null

@@ -2,11 +2,9 @@
 import { convertPosition, convertMask, convertIgnoreUnderlyingMask } from './generalUtils';
 import { convertFill } from './fillUtils';
 import { convertStroke, convertStrokeOptions } from './strokeUtils';
-// import { getImage, getImageId } from './imageUtils';
 import { convertShadow } from './shadowUtils';
-// import { getShapeGroupChildren } from './shapeGroupUtils';
+import { getTextPoint, getTextLines, getTextParagraphs, getTextResize } from './textUtils';
 import { TWEEN_PROPS_MAP, DEFAULT_STROKE_STYLE, DEFAULT_SHADOW_STYLE, DEFAULT_BLUR_STYLE, DEFAULT_STROKE_OPTIONS_STYLE, DEFAULT_BLEND_MODE, DEFAULT_OPACITY, DEFAULT_FILL_STYLE } from './constants';
-// import * as textUtils from './textUtils';
 
 interface ConvertLayers {
   sketchLayers: (srm.RelevantLayer | srm.Artboard)[];
@@ -59,7 +57,6 @@ interface ConvertLayer {
 
 export const convertArtboard = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope, xOffset }: ConvertLayer): Promise<btwix.Layer[]> => {
   return new Promise((resolve, reject) => {
-    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as any);
     const item = {
       type: 'Artboard',
       id: sketchLayer.id,
@@ -81,7 +78,7 @@ export const convertArtboard = ({ sketchLayer, images, sketch, masked, underlyin
       underlyingMask: null,
       ignoreUnderlyingMask: null,
       masked: false,
-      showChildren: (sketchLayer as srm.Artboard).sketchObject.isExpanded(),
+      showChildren: false, // (sketchLayer as srm.Artboard).sketchObject.isExpanded(),
       selected: false,
       hover: false,
       events: [],
@@ -298,7 +295,7 @@ export const convertGroup = ({ sketchLayer, images, sketch, masked, underlyingMa
             underlyingMask: underlyingMask,
             ignoreUnderlyingMask: ignoreUnderlyingMask,
             masked: masked && !ignoreUnderlyingMask,
-            showChildren: (sketchLayer as srm.Group).sketchObject.isExpanded(),
+            showChildren: false, // (sketchLayer as srm.Group).sketchObject.isExpanded(),
             selected: false,
             hover: false,
             events: [],
@@ -342,35 +339,34 @@ export const convertGroup = ({ sketchLayer, images, sketch, masked, underlyingMa
   });
 }
 
-export const convertText = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<any> => {
+export const convertText = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer & { sketchLayer: srm.Text }): Promise<any> => {
   return new Promise((resolve, reject) => {
-    const position = convertPosition(sketchLayer as srm.Text);
-    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Text);
-    const sketchRatio = (sketchLayer as srm.Text).style.fontWeight / 12;
+    const position = convertPosition(sketchLayer);
+    const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer);
+    const sketchRatio = sketchLayer.style.fontWeight / 12;
     const domScale = [100, 200, 300, 400, 500, 600, 700, 800, 900];
     const fontWeight = domScale[Math.floor(sketchRatio * domScale.length)];
-    const point = (() => {
-      const firstLine = (sketchLayer as srm.Text).fragments[0];
-      const y = (((sketchLayer as srm.Text).frame.y + firstLine.rect.y + firstLine.rect.height) - firstLine.baselineOffset) - (artboardItem.frame.height / 2);
-      switch((sketchLayer as srm.Text).style.alignment) {
-        case 'justified':
-        case 'left':
-          return {
-            x: Math.round(((sketchLayer as srm.Text).frame.x + firstLine.rect.x) - (artboardItem.frame.width / 2)),
-            y: y
-          }
-        case 'center':
-          return {
-            x: position.x - (artboardItem.frame.width / 2),
-            y: y
-          }
-        case 'right':
-          return {
-            x: Math.round(((sketchLayer as srm.Text).frame.x + (sketchLayer as srm.Text).frame.width) - (artboardItem.frame.width / 2)),
-            y: y
-          }
-      }
-    })();
+    const textResize = getTextResize({sketchLayer});
+    let x = position.x - (artboardItem.frame.width / 2);
+    let y = position.y - (artboardItem.frame.height / 2);
+    let point = getTextPoint({ sketchLayer, artboardItem });
+    let paragraphs = getTextParagraphs({ sketchLayer });
+    let lines = getTextLines({ sketchLayer, artboardItem });
+    let innerWidth = sketchLayer.frame.width;
+    let innerHeight = sketchLayer.frame.height;
+    let width = sketchLayer.frame.width;
+    let height = sketchLayer.frame.height;
+    if (sketchLayer.transform.rotation !== 0) {
+      const duplicate = sketchLayer.duplicate() as srm.Text;
+      duplicate.transform.rotation = -sketchLayer.transform.rotation;
+      lines = getTextLines({ sketchLayer: duplicate, artboardItem });
+      duplicate.transform.rotation = sketchLayer.transform.rotation;
+      const group = new sketch.Group({
+        layers: [duplicate]
+      }).adjustToFit();
+      width = group.frame.width;
+      height = group.frame.height;
+    }
     resolve(
       [
         {
@@ -382,12 +378,12 @@ export const convertText = ({ sketchLayer, images, sketch, masked, underlyingMas
           children: null,
           scope: scope,
           frame: {
-            x: position.x - (artboardItem.frame.width / 2),
-            y: position.y - (artboardItem.frame.height / 2),
-            width: sketchLayer.frame.width,
-            height: sketchLayer.frame.height,
-            innerWidth: sketchLayer.frame.width,
-            innerHeight: sketchLayer.frame.height
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            innerWidth: innerWidth,
+            innerHeight: innerHeight
           },
           underlyingMask: underlyingMask,
           ignoreUnderlyingMask: ignoreUnderlyingMask,
@@ -407,43 +403,36 @@ export const convertText = ({ sketchLayer, images, sketch, masked, underlyingMas
             stroke: convertStroke(sketchLayer as srm.Text),
             strokeOptions: convertStrokeOptions(sketchLayer as srm.Text),
             shadow: convertShadow(sketchLayer as srm.Text),
-            blendMode: (sketchLayer as srm.Text).style.blendingMode.toLowerCase() as btwix.BlendMode,
-            opacity: (sketchLayer as srm.Text).style.opacity,
+            blendMode: sketchLayer.style.blendingMode.toLowerCase() as btwix.BlendMode,
+            opacity: sketchLayer.style.opacity,
             blur: {
-              enabled: (sketchLayer as srm.Text).style.blur.enabled && (sketchLayer as srm.Text).style.blur.blurType === 'Gaussian',
-              blur: (sketchLayer as srm.Text).style.blur.radius
+              enabled: sketchLayer.style.blur.enabled && sketchLayer.style.blur.blurType === 'Gaussian',
+              blur: sketchLayer.style.blur.radius
             }
           },
           textStyle: {
-            fontSize: (sketchLayer as srm.Text).style.fontSize,
-            leading: (sketchLayer as srm.Text).style.lineHeight,
+            fontSize: sketchLayer.style.fontSize,
+            leading: sketchLayer.style.lineHeight,
             fontWeight: fontWeight,
-            fontFamily: (sketchLayer as srm.Text).style.fontFamily,
-            justification: (sketchLayer as srm.Text).style.alignment === 'justified' ? 'left' : (sketchLayer as srm.Text).style.alignment,
-            letterSpacing: (sketchLayer as srm.Text).style.kerning ? (sketchLayer as srm.Text).style.kerning : 0,
-            textTransform: (sketchLayer as srm.Text).style.textTransform,
-            oblique:(sketchLayer as srm.Text).style.fontStyle === 'italic' ? 14 : 0,
+            fontFamily: sketchLayer.style.fontFamily,
+            justification: sketchLayer.style.alignment === 'justified' ? 'left' : sketchLayer.style.alignment,
+            letterSpacing: sketchLayer.style.kerning ? sketchLayer.style.kerning : 0,
+            textTransform: sketchLayer.style.textTransform,
+            fontStyle: sketchLayer.style.fontStyle === 'italic' ? 'italic' : 'normal',
+            textResize: textResize,
+            verticalAlignment: sketchLayer.style.verticalAlignment
           },
           transform: {
-            rotation: (sketchLayer as srm.Text).transform.rotation * -1,
-            verticalFlip: (sketchLayer as srm.Text).transform.flippedVertically,
-            horizontalFlip: (sketchLayer as srm.Text).transform.flippedHorizontally
+            rotation: sketchLayer.transform.rotation,
+            verticalFlip: sketchLayer.transform.flippedVertically,
+            horizontalFlip: sketchLayer.transform.flippedHorizontally
           },
-          point: point,
-          text: (sketchLayer as srm.Text).fragments.reduce((result, current, index) => {
-            const prevFrage = (sketchLayer as srm.Text).fragments[index === 0 ? 0 : index - 1];
-            result = result + current.text;
-            if (index < (sketchLayer as srm.Text).fragments.length - 1 && !prevFrage.text.includes(`\n`)) {
-              result = result + `\n`;
-            }
-            return result;
-          }, ''),
-          lines: (sketchLayer as srm.Text).fragments.map((fragment) => ({
-            text: fragment.text,
-            width: Math.round(fragment.rect.width)
-          }))
-        }
-      ]
+          point,
+          text: sketchLayer.text,
+          lines,
+          paragraphs
+        } as any
+      ] as any[]
     );
   });
 }
@@ -542,7 +531,7 @@ export const convertLayer = (props: ConvertLayer): Promise<btwix.Layer[]> => {
         break;
       }
       case 'Text': {
-        convertText(props).then((layers) => {
+        convertText(props as any).then((layers) => {
           resolve(layers);
         });
       }
