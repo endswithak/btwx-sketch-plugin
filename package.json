@@ -4,6 +4,7 @@
   "engines": {
     "sketch": ">=3.0"
   },
+  "repository": "https://github.com/endswithak/btwx-sketch-plugin",
   "skpm": {
     "name": "btwix",
     "manifest": "src/manifest.json",
