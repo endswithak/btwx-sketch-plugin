@@ -1,4 +1,4 @@
-![icon](assets/icons/128x128.png)
+![icon](images/icon.png)
 
 # btwix sketch plugin
 
