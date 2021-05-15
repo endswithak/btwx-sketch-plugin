@@ -181,7 +181,7 @@ export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, underly
             opacity: (sketchLayer as srm.Shape).style.opacity,
             blur: {
               enabled: (sketchLayer as srm.Shape).style.blur.enabled && (sketchLayer as srm.Shape).style.blur.blurType === 'Gaussian',
-              blur: (sketchLayer as srm.Shape).style.blur.radius
+              radius: (sketchLayer as srm.Shape).style.blur.radius
             }
           },
           transform: {
@@ -244,7 +244,7 @@ export const convertShapePath = ({ sketchLayer, images, sketch, masked, underlyi
             opacity: (sketchLayer as srm.ShapePath).style.opacity,
             blur: {
               enabled: (sketchLayer as srm.ShapePath).style.blur.enabled && (sketchLayer as srm.ShapePath).style.blur.blurType === 'Gaussian',
-              blur: (sketchLayer as srm.ShapePath).style.blur.radius
+              radius: (sketchLayer as srm.ShapePath).style.blur.radius
             }
           },
           transform: {
@@ -407,7 +407,7 @@ export const convertText = ({ sketchLayer, images, sketch, masked, underlyingMas
             opacity: sketchLayer.style.opacity,
             blur: {
               enabled: sketchLayer.style.blur.enabled && sketchLayer.style.blur.blurType === 'Gaussian',
-              blur: sketchLayer.style.blur.radius
+              radius: sketchLayer.style.blur.radius
             }
           },
           textStyle: {
@@ -484,7 +484,7 @@ export const convertImage = ({ sketchLayer, images, sketch, masked, underlyingMa
             opacity: (sketchLayer as srm.Image).style.opacity,
             blur: {
               enabled: (sketchLayer as srm.Image).style.blur.enabled && (sketchLayer as srm.Image).style.blur.blurType === 'Gaussian',
-              blur: (sketchLayer as srm.Image).style.blur.radius
+              radius: (sketchLayer as srm.Image).style.blur.radius
             }
           },
           transform: {
