@@ -7,6 +7,7 @@ interface GetTextPoint {
 export const getTextPoint = ({sketchLayer, artboardItem}: GetTextPoint) => {
   const current = (sketchLayer as srm.Text).fragments[0];
   const y = (((sketchLayer as srm.Text).frame.y + current.rect.y + current.rect.height) - current.baselineOffset) - (artboardItem.frame.height / 2);
+  // const y = ((((sketchLayer as srm.Text).frame.y + current.rect.y + current.rect.height) - current.baselineOffset) - (artboardItem.frame.height / 2) - (0.25 * (sketchLayer as srm.Text).style.lineHeight as number));
   switch((sketchLayer as srm.Text).style.alignment) {
     case 'justified':
     case 'left':
@@ -16,7 +17,7 @@ export const getTextPoint = ({sketchLayer, artboardItem}: GetTextPoint) => {
       }
     case 'center':
       return {
-        x: (sketchLayer as srm.Text).frame.x + ((sketchLayer as srm.Text).frame.width / 2),
+        x: ((sketchLayer as srm.Text).frame.x + ((sketchLayer as srm.Text).frame.width / 2)) - (artboardItem.frame.width / 2),
         y: y
       }
     case 'right':
@@ -90,7 +91,7 @@ interface GetTextParagraphs {
 
 export const getTextParagraphs = ({sketchLayer}: GetTextParagraphs): string[][] => {
   return sketchLayer.fragments.reduce((result: string[][], current, index) => {
-    return [[...result[0], current.text]];
+    return [[...result[0], current.text.trim()]];
   }, [[]]);
 }
 

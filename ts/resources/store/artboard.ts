@@ -137,12 +137,14 @@ const processLayer = ({ layer, sketch, page }: ProcessLayerOptions): Promise<srm
         } else {
           const groupParent = (layerS8 as srm.Group).parent;
           const groupName = (layerS8 as srm.Group).name;
+          const groupIndex = (layerS8 as srm.Group).index;
           (layerS8 as srm.Group).sketchObject.ungroup();
           const newGroup = new sketch.Group({
             name: groupName,
             parent: groupParent,
             layers: (layerS8 as srm.Group).layers
           });
+          newGroup.index = groupIndex;
           processLayers({
             layers: (layerS8 as srm.Group).layers,
             sketch: sketch,
