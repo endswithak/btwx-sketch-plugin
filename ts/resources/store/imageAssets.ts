@@ -8,20 +8,32 @@ interface ProcessLayerImageOptions {
 
 const processLayerImage = ({ page, layer, sketch }: ProcessLayerImageOptions): Promise<btwix.DocumentImage> => {
   return new Promise((resolve, reject) => {
-    // create image layer from image date
-    const baseImage = new sketch.Image({
-      image: (<srm.Image>layer).image,
+    // create image layer from image data
+    const imagePage = new sketch.Page({
+      parent: page.parent
+    });
+    const imageWithWhitespace = new sketch.Artboard({
+      layers: [
+        new sketch.Image({
+          image: (<srm.Image>layer).image,
+          frame: {
+            ...layer.frame,
+            x: 0,
+            y: 0
+          }
+        })
+      ],
       frame: layer.frame,
-      parent: page
+      parent: imagePage
     });
     generateImageAsset({
-      layer: baseImage,
+      layer: imageWithWhitespace,
       sketch: sketch,
       id: (<srm.Image>layer).image.id
     })
     .then((imageAsset) => {
       // remove asset artboard from page
-      baseImage.remove();
+      imagePage.remove();
       // return base64 image
       resolve(imageAsset);
     });
