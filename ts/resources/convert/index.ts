@@ -82,8 +82,8 @@ export const convertArtboard = ({ sketchLayer, images, sketch, masked, underlyin
       selected: false,
       hover: false,
       events: [],
-      originArtboardForEvents: [],
-      destinationArtboardForEvents: [],
+      originForEvents: [],
+      destinationForEvents: [],
       tweens: {
         allIds: [],
         asOrigin: [],

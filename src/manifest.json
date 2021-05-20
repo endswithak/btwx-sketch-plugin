@@ -4,7 +4,7 @@
   "description": "Copy artboards into btwx",
   "icon": "icon.png",
   "compatibleVersion": "69",
-  "bundleVersion": "1.0.2",
+  "bundleVersion": "1.1.0",
   "commands": [
     {
       "name": "Copy artboards to clipboard",

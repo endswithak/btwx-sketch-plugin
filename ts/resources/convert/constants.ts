@@ -73,7 +73,6 @@ export const TWEEN_PROPS_MAP: { [id: string]: string[] } = {
   fillGradientDestinationY: [],
   x: [],
   y: [],
-  radius: [],
   rotation: [],
   width: [],
   height: [],
