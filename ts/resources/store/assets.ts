@@ -3,6 +3,10 @@ import processShapeLayerAssets from './shapeAssets';
 import processGroupLayerAssets from './groupAssets';
 import processTextLayerAssets from './textAssets';
 
+export const bufferToBase64 = (buffer: Buffer | ArrayBuffer) => {
+  return btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+};
+
 interface TextWithBoundingOpts {
   page: srm.Page;
   layer: srm.Text;
@@ -136,10 +140,13 @@ export const generateImageAsset = ({ layer, sketch, id, prefix, scale }: Generat
       output: false,
       ['save-for-web']: true
     });
+    const bufferImg: srm.Image = new sketch.Image({
+      image: buffer
+    });
+    const base64 = bufferImg.image.nsdata.base64EncodedStringWithOptions(0);
     resolve({
       id: prefix ? `${prefix}${id}` : id,
-      buffer: buffer,
-      ext: 'png'
+      base64: `data:image/png;base64, ${base64}`
     });
   })
 };

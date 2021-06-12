@@ -352,8 +352,7 @@ declare namespace btwix {
 
   interface DocumentImage {
     id: string;
-    buffer: Buffer;
-    ext: string;
+    base64: string;
   }
 
   interface TweenEvent {
