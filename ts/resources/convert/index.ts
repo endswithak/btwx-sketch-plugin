@@ -4,7 +4,7 @@ import { convertFill } from './fillUtils';
 import { convertStroke, convertStrokeOptions } from './strokeUtils';
 import { convertShadow } from './shadowUtils';
 import { getTextPoint, getTextLines, getTextParagraphs, getTextResize } from './textUtils';
-import { TWEEN_PROPS_MAP, DEFAULT_STROKE_STYLE, DEFAULT_SHADOW_STYLE, DEFAULT_BLUR_STYLE, DEFAULT_STROKE_OPTIONS_STYLE, DEFAULT_BLEND_MODE, DEFAULT_OPACITY, DEFAULT_FILL_STYLE } from './constants';
+import { TWEEN_PROPS_MAP, DEFAULT_STROKE_STYLE, DEFAULT_SHADOW_STYLE, DEFAULT_BLUR_STYLE, DEFAULT_STROKE_OPTIONS_STYLE, DEFAULT_BLEND_MODE, DEFAULT_OPACITY, DEFAULT_FILL_STYLE, DEFAULT_SCROLL } from './constants';
 
 interface ConvertLayers {
   sketchLayers: (srm.RelevantLayer | srm.Artboard)[];
@@ -292,6 +292,7 @@ export const convertGroup = ({ sketchLayer, images, sketch, masked, underlyingMa
               innerWidth: sketchLayer.frame.width,
               innerHeight: sketchLayer.frame.height
             },
+            scroll: DEFAULT_SCROLL,
             underlyingMask: underlyingMask,
             ignoreUnderlyingMask: ignoreUnderlyingMask,
             masked: masked && !ignoreUnderlyingMask,
@@ -599,6 +600,7 @@ const convert = (data: Convert): Promise<btwix.ClipboardLayers> => {
         tweens: { allIds: [], byId: {} },
         topScopeChildren: [],
         topScopeArtboards: { allIds: [], byId: {} },
+        nonArtboardBounds: [0,0,0,0],
         allIds: [],
         allArtboardIds: [],
         allGroupIds: [],
