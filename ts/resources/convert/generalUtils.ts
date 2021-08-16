@@ -90,8 +90,8 @@ export const convertGradientType = (sketchGradientType: srm.GradientType): strin
   }
 };
 
-export const convertGradientStops = (sketchGradientStops: any): btwix.GradientStop[] => {
-  return sketchGradientStops.reduce((result: btwix.GradientStop[], current: any) => {
+export const convertGradientStops = (sketchGradientStops: any): btwx.GradientStop[] => {
+  return sketchGradientStops.reduce((result: btwx.GradientStop[], current: any) => {
     result = [...result, {
       position: current.position,
       color: convertColor(current.color)

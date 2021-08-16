@@ -1,14 +1,14 @@
 {
-  "name": "btwix",
+  "name": "btwx",
   "version": "1.3.0",
   "engines": {
     "sketch": ">=3.0"
   },
   "repository": "https://github.com/endswithak/btwx-sketch-plugin",
   "skpm": {
-    "name": "btwix",
+    "name": "btwx",
     "manifest": "src/manifest.json",
-    "main": "btwix.sketchplugin",
+    "main": "btwx.sketchplugin",
     "assets": [
       "assets/**/*"
     ],

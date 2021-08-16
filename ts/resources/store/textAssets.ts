@@ -40,11 +40,11 @@ interface ProcessTextLayerAssetsOpts {
   sketch: srm.Sketch;
 }
 
-const processTextLayerAssets = ({ page, layer, sketch }: ProcessTextLayerAssetsOpts): Promise<{ [id: string]: btwix.DocumentImage; }> => {
+const processTextLayerAssets = ({ page, layer, sketch }: ProcessTextLayerAssetsOpts): Promise<{ [id: string]: btwx.DocumentImage; }> => {
   return new Promise((resolve, reject) => {
     const { style } = layer;
     const { fills } = style;
-    const layerImages: { [id: string]: btwix.DocumentImage; } = {};
+    const layerImages: { [id: string]: btwx.DocumentImage; } = {};
     processLayerFills({
       page: page,
       layer: layer,

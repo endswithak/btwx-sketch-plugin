@@ -1,4 +1,4 @@
-declare namespace btwix {
+declare namespace btwx {
 
   type ResizeHandle = 'topLeft' | 'topCenter' | 'topRight' | 'bottomLeft' | 'bottomCenter' | 'bottomRight' | 'leftCenter' | 'rightCenter';
 
@@ -1097,14 +1097,14 @@ declare namespace srm {
   interface AppStore {
     artboards: srm.Artboard[];
     images: {
-      [id: string]: btwix.DocumentImage;
+      [id: string]: btwx.DocumentImage;
     };
   }
 
   interface ProcessedArtboard {
     artboard: srm.Artboard;
     images: {
-      [id: string]: btwix.DocumentImage;
+      [id: string]: btwx.DocumentImage;
     };
   }
 

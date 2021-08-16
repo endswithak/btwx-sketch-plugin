@@ -65,14 +65,14 @@ export default (context: any) => {
             `setLoadingText('Copying', 'Copying to clipboard')`
           );
         })
-        // convert store to btwix layers
+        // convert store to btwx layers
         .then(() => {
           return convert({artboards: store.artboards, images: store.images, sketch: sketch});
         })
-        // return btwix layers
-        .then((btwixLayers) => {
+        // return btwx layers
+        .then((btwxLayers) => {
           return loadingWebContents.executeJavaScript(
-            `copyLayersToClipboard(${JSON.stringify(btwixLayers)})`
+            `copyLayersToClipboard(${JSON.stringify(btwxLayers)})`
           );
         })
         //

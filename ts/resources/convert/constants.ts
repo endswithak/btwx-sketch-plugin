@@ -18,8 +18,8 @@ export const WEB_SAFE_FONTS = ['Arial', 'Verdana', 'Helvetica', 'Tahoma', 'Trebu
 export const WEB_SAFE_FONT_WEIGHTS = [400, 700];
 
 // Tween
-export const DEFAULT_TWEEN_EASE_OPTIONS: btwix.CubicBezier[] = ['linear', 'power1', 'power2', 'power3', 'power4', 'back', 'elastic', 'bounce', 'rough', 'slow', 'steps', 'circ', 'expo', 'sine'];
-export const DEFAULT_TWEEN_POWER_OPTIONS: btwix.CubicBezierType[] = ['in', 'inOut', 'out'];
+export const DEFAULT_TWEEN_EASE_OPTIONS: btwx.CubicBezier[] = ['linear', 'power1', 'power2', 'power3', 'power4', 'back', 'elastic', 'bounce', 'rough', 'slow', 'steps', 'circ', 'expo', 'sine'];
+export const DEFAULT_TWEEN_POWER_OPTIONS: btwx.CubicBezierType[] = ['in', 'inOut', 'out'];
 export const DEFAULT_TWEEN_DURATION = 0.5;
 export const DEFAULT_TWEEN_DELAY = 0;
 export const DEFAULT_TWEEN_EASE = 'power1';
@@ -103,7 +103,7 @@ export const TWEEN_PROPS_MAP: { [id: string]: string[] } = {
 export const CUSTOM_WIGGLE_TWEEN_STRENGTH_NUMBER = 20;
 export const CUSTOM_WIGGLE_TWEEN_STRENGTH_COLOR = { h: 0, s: 0, l: 0, a: 1 };
 
-export const CUSTOM_WIGGLE_TWEEN_STRENGTH_MAP: { [id: string]: number | btwix.Color | string } = {
+export const CUSTOM_WIGGLE_TWEEN_STRENGTH_MAP: { [id: string]: number | btwx.Color | string } = {
   image: 0,
   shape: 0,
   fill: 0,
@@ -196,9 +196,9 @@ export const getDefaultTweenProps = (customWiggleProp: any = null) => ({
   }
 })
 
-export const DEFAULT_TWEEN_EVENTS_TYPES: btwix.TweenEventType[] = ['mousedown', 'mouseup', 'mousedrag', 'click', 'rightclick', 'doubleclick', 'mousemove', 'mouseenter', 'mouseleave'];
+export const DEFAULT_TWEEN_EVENTS_TYPES: btwx.TweenEventType[] = ['mousedown', 'mouseup', 'mousedrag', 'click', 'rightclick', 'doubleclick', 'mousemove', 'mouseenter', 'mouseleave'];
 
-export const DEFAULT_TWEEN_EVENTS: { event: btwix.TweenEventType; titleCase: string }[] = [
+export const DEFAULT_TWEEN_EVENTS: { event: btwx.TweenEventType; titleCase: string }[] = [
   { event: 'mousedown', titleCase: 'Mouse Down' },
   { event: 'mouseup', titleCase: 'Mouse Up' },
   { event: 'mousedrag', titleCase: 'Mouse Drag' },
@@ -327,7 +327,7 @@ export const THEME_LIGHT_BACKGROUND_MIN = '#f7f7f7';
 export const THEME_DARK_BACKGROUND_MAX = '#555';
 export const THEME_LIGHT_BACKGROUND_MAX = '#ccc';
 
-export const DEFAULT_GRADIENT_STYLE: btwix.Gradient = {
+export const DEFAULT_GRADIENT_STYLE: btwx.Gradient = {
   gradientType: DEFAULT_GRADIENT_TYPE,
   origin: DEFAULT_GRADIENT_ORIGIN,
   destination: DEFAULT_GRADIENT_DESTINATION,
@@ -338,7 +338,7 @@ export const DEFAULT_GRADIENT_STYLE: btwix.Gradient = {
 export const DEFAULT_FILL_FILL_TYPE = 'color';
 export const DEFAULT_FILL_COLOR = { h: 0, s: 0, l: 0.8, a: 1 };
 
-export const DEFAULT_FILL_STYLE: btwix.Fill = {
+export const DEFAULT_FILL_STYLE: btwx.Fill = {
   fillType: DEFAULT_FILL_FILL_TYPE,
   enabled: true,
   color: DEFAULT_FILL_COLOR,
@@ -349,7 +349,7 @@ export const DEFAULT_STROKE_FILL_TYPE = 'color';
 export const DEFAULT_STROKE_COLOR = { h: 0, s: 0, l: 0.6, a: 1 };
 export const DEFAULT_STROKE_WIDTH = 1;
 
-export const DEFAULT_STROKE_STYLE: btwix.Stroke = {
+export const DEFAULT_STROKE_STYLE: btwx.Stroke = {
   fillType: DEFAULT_STROKE_FILL_TYPE,
   enabled: true,
   color: DEFAULT_STROKE_COLOR,
@@ -358,15 +358,15 @@ export const DEFAULT_STROKE_STYLE: btwix.Stroke = {
 }
 
 export const DEFAULT_STROKE_CAP = 'butt';
-export const DEFAULT_STROKE_CAP_OPTIONS: btwix.StrokeCap[] = ['butt', 'round', 'square'];
+export const DEFAULT_STROKE_CAP_OPTIONS: btwx.StrokeCap[] = ['butt', 'round', 'square'];
 export const DEFAULT_STROKE_JOIN = 'miter';
-export const DEFAULT_STROKE_JOIN_OPTIONS: btwix.StrokeJoin[] = ['miter', 'round', 'bevel'];
+export const DEFAULT_STROKE_JOIN_OPTIONS: btwx.StrokeJoin[] = ['miter', 'round', 'bevel'];
 export const DEFAULT_STROKE_DASH_ARRAY_WIDTH = 0;
 export const DEFAULT_STROKE_DASH_ARRAY_GAP = 0;
 export const DEFAULT_STROKE_DASH_ARRAY = [DEFAULT_STROKE_DASH_ARRAY_WIDTH, DEFAULT_STROKE_DASH_ARRAY_GAP];
 export const DEFAULT_STROKE_DASH_OFFSET = 0;
 
-export const DEFAULT_STROKE_OPTIONS_STYLE: btwix.StrokeOptions = {
+export const DEFAULT_STROKE_OPTIONS_STYLE: btwx.StrokeOptions = {
   cap: DEFAULT_STROKE_CAP,
   join: DEFAULT_STROKE_JOIN,
   dashArray: DEFAULT_STROKE_DASH_ARRAY,
@@ -380,7 +380,7 @@ export const DEFAULT_SHADOW_OFFSET_X = 0;
 export const DEFAULT_SHADOW_OFFSET_Y = 0;
 export const DEFAULT_SHADOW_OFFSET = { x: DEFAULT_SHADOW_OFFSET_X, y: DEFAULT_SHADOW_OFFSET_Y };
 
-export const DEFAULT_SHADOW_STYLE: btwix.Shadow = {
+export const DEFAULT_SHADOW_STYLE: btwx.Shadow = {
   fillType: DEFAULT_SHADOW_FILL_TYPE,
   enabled: false,
   color: DEFAULT_SHADOW_COLOR,
@@ -397,7 +397,7 @@ export const DEFAULT_BLUR_STYLE = {
   blur: DEFAULT_BLUR
 }
 
-export const DEFAULT_STYLE: btwix.Style = {
+export const DEFAULT_STYLE: btwx.Style = {
   fill: DEFAULT_FILL_STYLE,
   stroke: DEFAULT_STROKE_STYLE,
   strokeOptions: DEFAULT_STROKE_OPTIONS_STYLE,
@@ -411,7 +411,7 @@ export const DEFAULT_ROTATION = 0;
 export const DEFAULT_VERTICAL_FLIP = false;
 export const DEFAULT_HORIZONTAL_FLIP = false;
 
-export const DEFAULT_TRANSFORM: btwix.Transform = {
+export const DEFAULT_TRANSFORM: btwx.Transform = {
   rotation: DEFAULT_ROTATION,
   horizontalFlip: DEFAULT_HORIZONTAL_FLIP,
   verticalFlip: DEFAULT_VERTICAL_FLIP
@@ -452,14 +452,14 @@ export const DEFAULT_FONT_FAMILY = 'Helvetica';
 export const DEFAULT_FONT_WEIGHT = 400;
 export const DEFAULT_OBLIQUE = 0;
 export const DEFAULT_JUSTIFICATION = 'left';
-export const DEFAULT_JUSTIFICATION_OPTIONS: btwix.Jusftification[] = ['left', 'center', 'right'];
+export const DEFAULT_JUSTIFICATION_OPTIONS: btwx.Jusftification[] = ['left', 'center', 'right'];
 export const DEFAULT_LETTER_SPACING = 0;
 export const DEFAULT_TEXT_TRANSFORM = 'none';
 export const DEFAULT_TEXT_TRANSFORM_OPTIONS = ['none', 'uppercase', 'lowercase'];
 export const DEFAULT_LEADING = 16;
 export const DEFAULT_TEXT_FILL_COLOR = { h: 0, s: 0, l: 0, a: 1 };
 
-export const DEFAULT_TEXT_STYLE: btwix.TextStyle = {
+export const DEFAULT_TEXT_STYLE: btwx.TextStyle = {
   fontSize: DEFAULT_FONT_SIZE,
   leading: DEFAULT_LEADING,
   fontWeight: DEFAULT_FONT_WEIGHT,

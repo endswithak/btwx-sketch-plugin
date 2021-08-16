@@ -8,7 +8,7 @@
   "commands": [
     {
       "name": "Copy artboards to clipboard",
-      "identifier": "btwix.my-command-identifier",
+      "identifier": "btwx.my-command-identifier",
       "script": "./index.js",
       "handlers": {
         "run": "onRun",
@@ -19,9 +19,9 @@
     }
   ],
   "menu": {
-    "title": "btwix",
+    "title": "btwx",
     "items": [
-      "btwix.my-command-identifier"
+      "btwx.my-command-identifier"
     ]
   }
 }

@@ -6,11 +6,11 @@ interface ProcessShapeLayerAssetsOpts {
   sketch: srm.Sketch;
 }
 
-const processShapeLayerAssets = ({ page, layer, sketch }: ProcessShapeLayerAssetsOpts): Promise<{ [id: string]: btwix.DocumentImage; }> => {
+const processShapeLayerAssets = ({ page, layer, sketch }: ProcessShapeLayerAssetsOpts): Promise<{ [id: string]: btwx.DocumentImage; }> => {
   return new Promise((resolve, reject) => {
     const { style } = layer;
     const { fills } = style;
-    const layerImages: { [id: string]: btwix.DocumentImage; } = {};
+    const layerImages: { [id: string]: btwx.DocumentImage; } = {};
     processLayerFills({
       page: page,
       layer: layer,

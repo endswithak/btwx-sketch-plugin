@@ -1,7 +1,7 @@
 
 interface GetTextPoint {
   sketchLayer: srm.Text;
-  artboardItem: btwix.Artboard;
+  artboardItem: btwx.Artboard;
 }
 
 export const getTextPoint = ({sketchLayer, artboardItem}: GetTextPoint) => {
@@ -30,7 +30,7 @@ export const getTextPoint = ({sketchLayer, artboardItem}: GetTextPoint) => {
 
 interface GetTextLines {
   sketchLayer: srm.Text;
-  artboardItem: btwix.Artboard;
+  artboardItem: btwx.Artboard;
 }
 
 export const getTextLines = ({sketchLayer, artboardItem}: GetTextLines) => {

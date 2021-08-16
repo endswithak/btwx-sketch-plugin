@@ -132,7 +132,7 @@ interface GenerateImageAssetOptions {
   scale?: string;
 }
 
-export const generateImageAsset = ({ layer, sketch, id, prefix, scale }: GenerateImageAssetOptions): Promise<btwix.DocumentImage> => {
+export const generateImageAsset = ({ layer, sketch, id, prefix, scale }: GenerateImageAssetOptions): Promise<btwx.DocumentImage> => {
   return new Promise((resolve, reject) => {
     const buffer = sketch.export(layer, {
       formats: 'png',
@@ -159,7 +159,7 @@ interface CreateFillImageOptions {
   sketch: srm.Sketch;
 }
 
-const createFillImage = ({ page, layer, fill, fillIndex, sketch }: CreateFillImageOptions): Promise<btwix.DocumentImage> => {
+const createFillImage = ({ page, layer, fill, fillIndex, sketch }: CreateFillImageOptions): Promise<btwx.DocumentImage> => {
   return new Promise((resolve, reject) => {
     let temp: srm.RelevantLayer;
     createLayerTemplate({
@@ -192,7 +192,7 @@ interface ProcessLayerFillOptions {
   sketch: srm.Sketch;
 }
 
-const processLayerFill = ({ page, layer, fill, fillIndex, sketch }: ProcessLayerFillOptions): Promise<btwix.DocumentImage | null> => {
+const processLayerFill = ({ page, layer, fill, fillIndex, sketch }: ProcessLayerFillOptions): Promise<btwx.DocumentImage | null> => {
   return new Promise((resolve, reject) => {
     switch(fill.fillType) {
       case 'Pattern':
@@ -222,8 +222,8 @@ interface ProcessLayerFillsOptions {
   fills: srm.Fill[];
 }
 
-export const processLayerFills = ({ page, layer, sketch, fills }: ProcessLayerFillsOptions): Promise<(btwix.DocumentImage | null)[]> => {
-  let promises: Promise<btwix.DocumentImage | null>[] = [];
+export const processLayerFills = ({ page, layer, sketch, fills }: ProcessLayerFillsOptions): Promise<(btwx.DocumentImage | null)[]> => {
+  let promises: Promise<btwx.DocumentImage | null>[] = [];
   fills.forEach((fill: srm.Fill, fillIndex: number) => {
     if (fill.enabled) {
       promises.push(processLayerFill({
@@ -244,9 +244,9 @@ interface ProcessLayerOptions {
   sketch: srm.Sketch;
 }
 
-const processLayer = ({ page, layer, sketch }: ProcessLayerOptions): Promise<{ [id: string]: btwix.DocumentImage; }> => {
+const processLayer = ({ page, layer, sketch }: ProcessLayerOptions): Promise<{ [id: string]: btwx.DocumentImage; }> => {
   return new Promise((resolve, reject) => {
-    let layerImages: { [id: string]: btwix.DocumentImage; } = {};
+    let layerImages: { [id: string]: btwx.DocumentImage; } = {};
     switch(layer.type) {
       case 'Image':
         processImageLayerAssets({
@@ -313,9 +313,9 @@ interface ProcessLayersOptions {
   sketch: srm.Sketch;
 }
 
-export const processLayers = ({ page, layers, sketch }: ProcessLayersOptions): Promise<{ [id: string]: btwix.DocumentImage; }> => {
+export const processLayers = ({ page, layers, sketch }: ProcessLayersOptions): Promise<{ [id: string]: btwx.DocumentImage; }> => {
   return new Promise((resolve, reject) => {
-    const promises: Promise<{ [id: string]: btwix.DocumentImage; }>[] = [];
+    const promises: Promise<{ [id: string]: btwx.DocumentImage; }>[] = [];
     layers.forEach((layer: srm.RelevantLayer) => {
       promises.push(processLayer({
         page: page,
@@ -337,7 +337,7 @@ interface GetAssetsOptions {
   sketch: srm.Sketch;
 }
 
-export const getAssets = ({ page, artboard, sketch }: GetAssetsOptions): Promise<{ [id: string]: btwix.DocumentImage; }> => {
+export const getAssets = ({ page, artboard, sketch }: GetAssetsOptions): Promise<{ [id: string]: btwx.DocumentImage; }> => {
   return new Promise((resolve, reject) => {
     processLayers({
       page: page,

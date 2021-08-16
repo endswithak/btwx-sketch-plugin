@@ -1,12 +1,12 @@
 ![icon](images/icon.png)
 
-# btwix sketch plugin
+# btwx sketch plugin
 
 ## Installation
 
-- [Download](../../releases/latest/download/btwix.sketchplugin.zip) the latest release of the plugin
+- [Download](../../releases/latest/download/btwx.sketchplugin.zip) the latest release of the plugin
 - Un-zip
-- Double-click on btwix.sketchplugin
+- Double-click on btwx.sketchplugin
 
 ## Development Guide
 

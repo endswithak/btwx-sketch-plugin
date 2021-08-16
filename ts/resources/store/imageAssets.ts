@@ -6,7 +6,7 @@ interface ProcessLayerImageOptions {
   sketch: srm.Sketch;
 }
 
-const processLayerImage = ({ page, layer, sketch }: ProcessLayerImageOptions): Promise<btwix.DocumentImage> => {
+const processLayerImage = ({ page, layer, sketch }: ProcessLayerImageOptions): Promise<btwx.DocumentImage> => {
   return new Promise((resolve, reject) => {
     // create image layer from image data
     const imagePage = new sketch.Page({
@@ -46,11 +46,11 @@ interface ProcessImageLayerAssetsOpts {
   sketch: srm.Sketch;
 }
 
-const processImageLayerAssets = ({ page, layer, sketch }: ProcessImageLayerAssetsOpts): Promise<{ [id: string]: btwix.DocumentImage; }> => {
+const processImageLayerAssets = ({ page, layer, sketch }: ProcessImageLayerAssetsOpts): Promise<{ [id: string]: btwx.DocumentImage; }> => {
   return new Promise((resolve, reject) => {
     const { style } = layer;
     const { fills } = style;
-    const layerImages: { [id: string]: btwix.DocumentImage; } = {};
+    const layerImages: { [id: string]: btwx.DocumentImage; } = {};
     processLayerImage({
       page: page,
       layer: layer as srm.Image,

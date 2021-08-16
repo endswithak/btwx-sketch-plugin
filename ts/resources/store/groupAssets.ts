@@ -6,9 +6,9 @@ interface ProcessGroupLayerAssetsOpts {
   sketch: srm.Sketch;
 }
 
-const processGroupLayerAssets = ({ page, layer, sketch }: ProcessGroupLayerAssetsOpts): Promise<{ [id: string]: btwix.DocumentImage; }> => {
+const processGroupLayerAssets = ({ page, layer, sketch }: ProcessGroupLayerAssetsOpts): Promise<{ [id: string]: btwx.DocumentImage; }> => {
   return new Promise((resolve, reject) => {
-    let layerImages: { [id: string]: btwix.DocumentImage; } = {};
+    let layerImages: { [id: string]: btwx.DocumentImage; } = {};
     processLayers({
       page: page,
       layers: (layer as srm.Group).layers as srm.RelevantLayer[],

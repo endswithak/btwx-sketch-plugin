@@ -9,20 +9,20 @@ import { TWEEN_PROPS_MAP, DEFAULT_STROKE_STYLE, DEFAULT_SHADOW_STYLE, DEFAULT_BL
 interface ConvertLayers {
   sketchLayers: (srm.RelevantLayer | srm.Artboard)[];
   images: {
-    [id: string]: btwix.DocumentImage;
+    [id: string]: btwx.DocumentImage;
   };
   sketch: srm.Sketch;
   artboardItem: any;
   scope: string[];
 }
 
-export const convertLayers = ({ sketchLayers, images, sketch, artboardItem, scope }: ConvertLayers): Promise<btwix.Layer[]> => {
+export const convertLayers = ({ sketchLayers, images, sketch, artboardItem, scope }: ConvertLayers): Promise<btwx.Layer[]> => {
   return new Promise((resolve, reject) => {
-    let layers: btwix.Layer[] = [];
+    let layers: btwx.Layer[] = [];
     let masked = false;
     let underlyingMask: any = null;
     let xOffset = 0;
-    const promises: Promise<btwix.Layer[]>[] = [];
+    const promises: Promise<btwx.Layer[]>[] = [];
     sketchLayers.forEach((sketchLayer, index) => {
       promises.push(convertLayer({sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope, xOffset}));
       if (sketchLayer.type === 'Artboard') {
@@ -45,7 +45,7 @@ export const convertLayers = ({ sketchLayers, images, sketch, artboardItem, scop
 interface ConvertLayer {
   sketchLayer: srm.RelevantLayer | srm.Artboard;
   images: {
-    [id: string]: btwix.DocumentImage;
+    [id: string]: btwx.DocumentImage;
   };
   sketch: srm.Sketch;
   masked: boolean;
@@ -55,7 +55,7 @@ interface ConvertLayer {
   xOffset?: number;
 }
 
-export const convertArtboard = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope, xOffset }: ConvertLayer): Promise<btwix.Layer[]> => {
+export const convertArtboard = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope, xOffset }: ConvertLayer): Promise<btwx.Layer[]> => {
   return new Promise((resolve, reject) => {
     const item = {
       type: 'Artboard',
@@ -125,13 +125,13 @@ export const convertArtboard = ({ sketchLayer, images, sketch, masked, underlyin
         [
           item,
           ...layers
-        ] as btwix.Layer[]
+        ] as btwx.Layer[]
       );
     });
   });
 }
 
-export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwix.Shape[]> => {
+export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwx.Shape[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.Shape);
     const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Shape);
@@ -177,7 +177,7 @@ export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, underly
             stroke: convertStroke(sketchLayer as srm.Shape),
             strokeOptions: convertStrokeOptions(sketchLayer as srm.Shape),
             shadow: convertShadow(sketchLayer as srm.Shape),
-            blendMode: (sketchLayer as srm.Shape).style.blendingMode.toLowerCase() as btwix.BlendMode,
+            blendMode: (sketchLayer as srm.Shape).style.blendingMode.toLowerCase() as btwx.BlendMode,
             opacity: (sketchLayer as srm.Shape).style.opacity,
             blur: {
               enabled: (sketchLayer as srm.Shape).style.blur.enabled && (sketchLayer as srm.Shape).style.blur.blurType === 'Gaussian',
@@ -198,7 +198,7 @@ export const convertShapeGroup = ({ sketchLayer, images, sketch, masked, underly
   });
 }
 
-export const convertShapePath = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwix.Shape[]> => {
+export const convertShapePath = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwx.Shape[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.ShapePath);
     const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.ShapePath);
@@ -240,7 +240,7 @@ export const convertShapePath = ({ sketchLayer, images, sketch, masked, underlyi
             stroke: convertStroke(sketchLayer as srm.ShapePath),
             strokeOptions: convertStrokeOptions(sketchLayer as srm.ShapePath),
             shadow: convertShadow(sketchLayer as srm.ShapePath),
-            blendMode: (sketchLayer as srm.ShapePath).style.blendingMode.toLowerCase() as btwix.BlendMode,
+            blendMode: (sketchLayer as srm.ShapePath).style.blendingMode.toLowerCase() as btwx.BlendMode,
             opacity: (sketchLayer as srm.ShapePath).style.opacity,
             blur: {
               enabled: (sketchLayer as srm.ShapePath).style.blur.enabled && (sketchLayer as srm.ShapePath).style.blur.blurType === 'Gaussian',
@@ -261,7 +261,7 @@ export const convertShapePath = ({ sketchLayer, images, sketch, masked, underlyi
   });
 }
 
-export const convertGroup = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwix.Layer[]> => {
+export const convertGroup = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwx.Layer[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.Group);
     const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Group);
@@ -334,7 +334,7 @@ export const convertGroup = ({ sketchLayer, images, sketch, masked, underlyingMa
             }
           } as any,
           ...layers
-        ] as btwix.Layer[]
+        ] as btwx.Layer[]
       );
     });
   });
@@ -404,7 +404,7 @@ export const convertText = ({ sketchLayer, images, sketch, masked, underlyingMas
             stroke: convertStroke(sketchLayer as srm.Text),
             strokeOptions: convertStrokeOptions(sketchLayer as srm.Text),
             shadow: convertShadow(sketchLayer as srm.Text),
-            blendMode: sketchLayer.style.blendingMode.toLowerCase() as btwix.BlendMode,
+            blendMode: sketchLayer.style.blendingMode.toLowerCase() as btwx.BlendMode,
             opacity: sketchLayer.style.opacity,
             blur: {
               enabled: sketchLayer.style.blur.enabled && sketchLayer.style.blur.blurType === 'Gaussian',
@@ -438,7 +438,7 @@ export const convertText = ({ sketchLayer, images, sketch, masked, underlyingMas
   });
 }
 
-export const convertImage = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwix.Image[]> => {
+export const convertImage = ({ sketchLayer, images, sketch, masked, underlyingMask, artboardItem, scope }: ConvertLayer): Promise<btwx.Image[]> => {
   return new Promise((resolve, reject) => {
     const position = convertPosition(sketchLayer as srm.Image);
     const ignoreUnderlyingMask = convertIgnoreUnderlyingMask(sketchLayer as srm.Image);
@@ -481,7 +481,7 @@ export const convertImage = ({ sketchLayer, images, sketch, masked, underlyingMa
             stroke: convertStroke(sketchLayer as srm.Image),
             strokeOptions: convertStrokeOptions(sketchLayer as srm.Image),
             shadow: convertShadow(sketchLayer as srm.Image),
-            blendMode: (sketchLayer as srm.Image).style.blendingMode.toLowerCase() as btwix.BlendMode,
+            blendMode: (sketchLayer as srm.Image).style.blendingMode.toLowerCase() as btwx.BlendMode,
             opacity: (sketchLayer as srm.Image).style.opacity,
             blur: {
               enabled: (sketchLayer as srm.Image).style.blur.enabled && (sketchLayer as srm.Image).style.blur.blurType === 'Gaussian',
@@ -504,7 +504,7 @@ export const convertImage = ({ sketchLayer, images, sketch, masked, underlyingMa
   });
 }
 
-export const convertLayer = (props: ConvertLayer): Promise<btwix.Layer[]> => {
+export const convertLayer = (props: ConvertLayer): Promise<btwx.Layer[]> => {
   return new Promise((resolve, reject) => {
     switch(props.sketchLayer.type) {
       case 'Artboard': {
@@ -552,12 +552,12 @@ export const convertLayer = (props: ConvertLayer): Promise<btwix.Layer[]> => {
 interface Convert {
   artboards: srm.Artboard[];
   images: {
-    [id: string]: btwix.DocumentImage;
+    [id: string]: btwx.DocumentImage;
   };
   sketch: srm.Sketch;
 }
 
-const convert = (data: Convert): Promise<btwix.ClipboardLayers> => {
+const convert = (data: Convert): Promise<btwx.ClipboardLayers> => {
   return new Promise((resolve, reject) => {
     const { artboards, images, sketch } = data;
     convertLayers({
@@ -566,8 +566,8 @@ const convert = (data: Convert): Promise<btwix.ClipboardLayers> => {
       scope: [],
       images,
       sketch
-    }).then((btwixLayers) => {
-      const convertedLayers = btwixLayers.reduce((result: btwix.ClipboardLayers, current) => {
+    }).then((btwxLayers) => {
+      const convertedLayers = btwxLayers.reduce((result: btwx.ClipboardLayers, current) => {
         result.allIds = [...result.allIds, current.id];
         result.compiledIds = [...result.compiledIds, current.id];
         result.byId = { ...result.byId, [current.id]: current };
@@ -581,11 +581,11 @@ const convert = (data: Convert): Promise<btwix.ClipboardLayers> => {
             break;
           case 'Image':
             result.allImageIds = [...result.allImageIds, current.id];
-            result.compiledIds = [...result.compiledIds, (current as btwix.Image).imageId];
+            result.compiledIds = [...result.compiledIds, (current as btwx.Image).imageId];
             break;
           case 'Shape':
             result.allShapeIds = [...result.allShapeIds, current.id];
-            // result.shapeIcons = { ...result.shapeIcons, [current.id]: (current as btwix.Shape).pathData };
+            // result.shapeIcons = { ...result.shapeIcons, [current.id]: (current as btwx.Shape).pathData };
             break;
           case 'Text':
             result.allTextIds = [...result.allTextIds, current.id];
@@ -613,7 +613,7 @@ const convert = (data: Convert): Promise<btwix.ClipboardLayers> => {
         bounds: {}
       });
       convertedLayers.bounds = convertedLayers.allArtboardIds.reduce((result, current, index) => {
-        const artboardItem = convertedLayers.byId[current] as btwix.Artboard;
+        const artboardItem = convertedLayers.byId[current] as btwx.Artboard;
         if (artboardItem.frame.height > result.height) {
           result.height = artboardItem.frame.height;
         }
